@@ -9,11 +9,11 @@ import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 
 @MappedSuperclass
-public abstract class AssignableID<ID extends Serializable> implements Identifiable<ID>{
+public abstract class AssignableID<ID extends Serializable> implements Identifiable<ID> {
 
-    @Id
-    @Column(name = "ID")
-    @Getter
-    @Setter
-    protected ID id;
+  @Id
+  @Column(name = "ID")
+  @Getter
+  @Setter
+  protected ID id;
 }

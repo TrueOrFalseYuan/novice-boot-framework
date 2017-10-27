@@ -49,6 +49,10 @@ sourceSets {
         java.srcDir queryDslGenerateDir
         groovy.srcDir 'src/main/groovy'
     }
+    test {
+        compileClasspath += configurations.compileOnly
+        runtimeClasspath += configurations.compileOnly
+    }
 }
 
 tasks.withType(Javadoc) {

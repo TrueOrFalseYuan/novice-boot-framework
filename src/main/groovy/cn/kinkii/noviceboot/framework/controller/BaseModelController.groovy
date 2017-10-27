@@ -1,11 +1,10 @@
 package cn.kinkii.noviceboot.framework.controller
 
-import cn.kinkii.noviceboot.framework.controller.BaseController
 import cn.kinkii.noviceboot.framework.entity.Identifiable
 import cn.kinkii.noviceboot.framework.repository.ModelRepository
 import cn.kinkii.noviceboot.framework.service.ModelService
 
-import static cn.kinkii.noviceboot.framework.utils.GenericsUtils.getSuperclassGenericType
+import static cn.kinkii.noviceboot.framework.utils.KGenericsUtils.getSuperclassGenericType
 
 abstract class BaseModelController<E extends Identifiable, ID extends Serializable> extends BaseController {
 
