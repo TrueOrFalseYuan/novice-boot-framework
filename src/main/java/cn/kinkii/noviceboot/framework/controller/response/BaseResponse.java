@@ -3,6 +3,7 @@ package cn.kinkii.noviceboot.framework.controller.response;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import org.springframework.util.ConcurrentReferenceHashMap;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -14,17 +15,35 @@ import java.util.Map;
 
 public abstract class BaseResponse {
 
+  private static final Map<Class<?>, List<Class<?>>> sourceClassesCache = new ConcurrentReferenceHashMap<>();
+  private static final Map<Class<?>, Map<Class<?>, Map<Field, Method>>> fieldMapperCache = new ConcurrentReferenceHashMap<>();
+  private static final Map<Class<?>, Map<Class<?>, Map<Method, Method>>> methodMapperCache = new ConcurrentReferenceHashMap<>();
+
   protected Class<?> responseClass;
   protected List<Class<?>> sourceClasses;
-
   protected Map<Class<?>, Map<Field, Method>> fieldMapper = new HashMap<>();
   protected Map<Class<?>, Map<Method, Method>> methodMapper = new HashMap<>();
 
   public BaseResponse() {
     responseClass = getClass();
-    sourceClasses = buildSourceClasses();
-    fieldMapper = buildFieldMapper();
-    methodMapper = buildMethodMapper();
+
+    sourceClasses = sourceClassesCache.get(responseClass);
+    if (sourceClasses == null) {
+      sourceClasses = buildSourceClasses();
+      sourceClassesCache.put(responseClass, sourceClasses);
+    }
+
+    fieldMapper = fieldMapperCache.get(responseClass);
+    if (fieldMapper == null) {
+      fieldMapper = buildFieldMapper();
+      fieldMapperCache.put(responseClass, fieldMapper);
+    }
+
+    methodMapper = methodMapperCache.get(responseClass);
+    if (methodMapper == null) {
+      methodMapper = buildMethodMapper();
+      methodMapperCache.put(responseClass, methodMapper);
+    }
   }
 
   protected abstract List<Class<?>> buildSourceClasses();

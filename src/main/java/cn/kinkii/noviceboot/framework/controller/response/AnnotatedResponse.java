@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class AnnotatedResponse extends BaseResponse {
+public abstract class AnnotatedResponse extends BaseResponse {
 
   @Override
   protected List<Class<?>> buildSourceClasses() {
