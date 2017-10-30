@@ -1,6 +1,7 @@
 package cn.kinkii.noviceboot.framework.test.controller.response;
 
 import cn.kinkii.noviceboot.framework.controller.response.AnnotatedResponse;
+import cn.kinkii.noviceboot.framework.controller.response.GenericResponse;
 import cn.kinkii.noviceboot.framework.controller.response.annotations.ResponseClass;
 import cn.kinkii.noviceboot.framework.controller.response.annotations.ResponseProperty;
 import cn.kinkii.noviceboot.framework.test.entity.ComplexEntity;
@@ -19,9 +20,8 @@ import java.util.Map;
 
 public class BuildResponseTest {
 
-
   @Test
-  public void testBuildResponse() {
+  public void testBuildAnnotatedResponse() {
     AnnotatedTestResponse resp = new AnnotatedTestResponse();
 
     SimpleEntity se = new SimpleEntity("SimpleEntity1", 1);
@@ -45,17 +45,56 @@ public class BuildResponseTest {
     Assert.assertTrue(errorResp.getTestString().equals("SimpleEntity2"));
     Assert.assertTrue(errorResp.getTestInteger() == 2);
 
-    Boolean isThrown = false;
     try {
       errorResp.from(ce);
     } catch (Exception e) {
-      isThrown = true;
+      Assert.assertTrue(e.getClass().equals(IllegalArgumentException.class));
     }
     Assert.assertTrue(errorResp.getTestResponseList().get(0).equals("1 - handled"));
-    Assert.assertTrue(isThrown);
 
   }
 
+  @Test
+  public void testBuildGenericResponse() {
+    GenericTestResponse resp = new GenericTestResponse();
+
+    resp.from(new SimpleEntity("SimpleEntity1", 1));
+
+    Assert.assertTrue(resp.getTestString().equals("SimpleEntity1"));
+    Assert.assertTrue(resp.getTestInteger() == 1);
+    Assert.assertTrue(resp.getTestIntegerCopy() == 1);
+    Assert.assertTrue(resp.getTestIntegerString().equals("1 - handled"));
+
+    try {
+      GenericErrorResponse errorResp = new GenericErrorResponse();
+    } catch (Exception e) {
+      Assert.assertTrue(e.getClass().equals(IllegalStateException.class));
+    }
+  }
+
+  @Getter
+  private class GenericTestResponse extends GenericResponse<SimpleEntity> {
+    private String id;
+    private String testString;
+    private Integer testInteger;
+    private String testIntegerString;
+
+    @ResponseProperty(sourceClass = SimpleEntity.class, sourceProperty = "testInteger")
+    private Integer testIntegerCopy;
+
+
+    @ResponseProperty(sourceClass = SimpleEntity.class, sourceProperty = "testInteger")
+    private void setTestIntegerString(Integer value) {
+      testIntegerString = value != null ? value + " - handled" : null;
+    }
+  }
+
+  @Getter
+  private class GenericErrorResponse extends GenericTestResponse {
+    @ResponseProperty(sourceClass = ComplexEntity.class)
+    private List<String> testResponseList;
+
+  }
 
   @ResponseClass(sourceClasses = {SimpleEntity.class, ComplexEntity.class})
   @Getter
@@ -92,8 +131,6 @@ public class BuildResponseTest {
   @ResponseClass(sourceClasses = {SimpleEntity.class, ComplexEntity.class})
   private class AnnotatedErrorResponse extends AnnotatedTestResponse {
     @ResponseProperty(sourceClass = ComplexEntity.class, sourceProperty = "testMap")
-    private void setErrorParam(String errorParam) {
-
-    }
+    private void setErrorParam(String errorParam) {}
   }
 }

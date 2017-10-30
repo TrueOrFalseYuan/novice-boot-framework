@@ -74,7 +74,7 @@ public abstract class BaseResponse {
         try {
           f.set(this, getter.invoke(src));
         } catch (IllegalAccessException | InvocationTargetException e) {
-          throw new IllegalStateException(
+          throw new IllegalArgumentException(
               String.format("The <%s> can't be valued by the method <%s> of <%s>!", f.getName(), getter.getName(),
                             src.getClass().getCanonicalName()
               ));
@@ -89,7 +89,7 @@ public abstract class BaseResponse {
         try {
           m.invoke(this, getter.invoke(src));
         } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
-          throw new IllegalStateException(
+          throw new IllegalArgumentException(
               String.format("The method <%s> can't be valued by the method <%s> of <%s>!", m.getName(),
                             getter.getName(), src.getClass().getCanonicalName()
               ));

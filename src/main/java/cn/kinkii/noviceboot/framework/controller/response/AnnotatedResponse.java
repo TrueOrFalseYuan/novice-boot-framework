@@ -65,7 +65,6 @@ public abstract class AnnotatedResponse extends BaseResponse {
   }
 
   private String buildFieldNameFromAnnotatedMethod(Method annotatedMethod) {
-    System.out.println("current method -" + annotatedMethod.getName());
     ResponseProperty respProp = annotatedMethod.getAnnotation(ResponseProperty.class);
     if (StringUtils.isNotBlank(respProp.sourceProperty())) {
       return respProp.sourceProperty();
@@ -86,7 +85,7 @@ public abstract class AnnotatedResponse extends BaseResponse {
     String getterName = "get" + StringUtils.capitalize(name);
     Method getter = KReflectionUtils.findActualMethod(srcClz, getterName, type);
     if (getter == null) {
-      throw new IllegalArgumentException(
+      throw new IllegalStateException(
           String.format("Unknown property <%s> in the source class <%s>!", name, srcClz.getCanonicalName()));
     }
 
@@ -95,7 +94,7 @@ public abstract class AnnotatedResponse extends BaseResponse {
 
   private void validateSourceClass(Class<?> srcClz) {
     if (!sourceClasses.contains(srcClz)) {
-      throw new IllegalArgumentException(
+      throw new IllegalStateException(
           String.format("The source class <%s> should be added to the ResponseClass annotation!",
                         srcClz.getCanonicalName()
           ));

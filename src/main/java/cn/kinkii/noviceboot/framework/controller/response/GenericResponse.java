@@ -12,7 +12,10 @@ public abstract class GenericResponse<T> extends AnnotatedResponse {
   @Override
   protected List<Class<?>> buildSourceClasses() {
     return Lists.newArrayList(KGenericsUtils.getSuperclassGenericType(getClass()));
+  }
 
+  public void from(T original) {
+    super.from(original);
   }
 
 }
