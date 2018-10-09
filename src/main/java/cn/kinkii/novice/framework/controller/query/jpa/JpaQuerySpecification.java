@@ -5,27 +5,19 @@ import cn.kinkii.novice.framework.controller.query.BaseQuerySpecification;
 import cn.kinkii.novice.framework.controller.query.Expression;
 import cn.kinkii.novice.framework.controller.query.Junction;
 import cn.kinkii.novice.framework.controller.query.Order;
-import cn.kinkii.novice.framework.controller.query.BaseQuerySpecification;
 import cn.kinkii.novice.framework.controller.query.annotations.QueryProperty;
 import cn.kinkii.novice.framework.entity.Identifiable;
 import cn.kinkii.novice.framework.utils.KReflectionUtils;
-
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
 
+import javax.persistence.criteria.*;
+import javax.persistence.metamodel.EntityType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.EntityType;
 
 public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpecification<JpaQuery> implements Specification<T> {
 

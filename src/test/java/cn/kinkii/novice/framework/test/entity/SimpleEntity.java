@@ -1,16 +1,9 @@
 package cn.kinkii.novice.framework.test.entity;
 
 import cn.kinkii.novice.framework.entity.RtUUID;
-import cn.kinkii.novice.framework.entity.RtUUID;
+import lombok.*;
 
 import java.util.Date;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @NoArgsConstructor
 @RequiredArgsConstructor

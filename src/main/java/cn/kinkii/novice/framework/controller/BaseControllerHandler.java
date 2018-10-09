@@ -1,16 +1,11 @@
 package cn.kinkii.novice.framework.controller;
 
-import cn.kinkii.novice.framework.controller.exception.InternalServiceException;
-import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
-import cn.kinkii.novice.framework.exception.BaseException;
-import cn.kinkii.novice.framework.service.exception.ServiceException;
 import cn.kinkii.novice.framework.controller.exception.IllegalPermissionException;
 import cn.kinkii.novice.framework.controller.exception.InternalServiceException;
 import cn.kinkii.novice.framework.controller.exception.InvalidDataException;
 import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
 import cn.kinkii.novice.framework.exception.BaseException;
 import cn.kinkii.novice.framework.service.exception.ServiceException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +23,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Locale;
-
 import javax.validation.ConstraintViolationException;
+import java.util.Locale;
 
 @Component
 @RestControllerAdvice

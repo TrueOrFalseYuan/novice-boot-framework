@@ -1,11 +1,8 @@
 package cn.kinkii.novice.framework.service;
 
 import cn.kinkii.novice.framework.entity.Identifiable;
-import cn.kinkii.novice.framework.entity.Identifiable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
 import java.util.List;

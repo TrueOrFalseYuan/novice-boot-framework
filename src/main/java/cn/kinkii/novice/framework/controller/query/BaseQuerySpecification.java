@@ -3,7 +3,6 @@ package cn.kinkii.novice.framework.controller.query;
 import cn.kinkii.novice.framework.controller.query.annotations.OrderProperty;
 import cn.kinkii.novice.framework.controller.query.annotations.QueryClass;
 import cn.kinkii.novice.framework.utils.KReflectionUtils;
-
 import org.springframework.data.util.ReflectionUtils;
 import org.springframework.util.ConcurrentReferenceHashMap;
 

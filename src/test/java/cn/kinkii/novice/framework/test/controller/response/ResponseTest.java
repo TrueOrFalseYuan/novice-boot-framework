@@ -6,13 +6,7 @@ import cn.kinkii.novice.framework.controller.response.annotations.ResponseProper
 import cn.kinkii.novice.framework.test.entity.ComplexEntity;
 import cn.kinkii.novice.framework.test.entity.SimpleEntity;
 import com.google.common.collect.Lists;
-
-import cn.kinkii.novice.framework.controller.response.AnnotatedResponse;
-import cn.kinkii.novice.framework.controller.response.GenericResponse;
-import cn.kinkii.novice.framework.controller.response.annotations.ResponseProperty;
-import cn.kinkii.novice.framework.test.entity.ComplexEntity;
-import cn.kinkii.novice.framework.test.entity.SimpleEntity;
-
+import lombok.Getter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,8 +14,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import lombok.Getter;
 
 public class ResponseTest {
 

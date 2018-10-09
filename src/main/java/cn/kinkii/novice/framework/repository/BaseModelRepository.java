@@ -3,15 +3,11 @@ package cn.kinkii.novice.framework.repository;
 import cn.kinkii.novice.framework.entity.Identifiable;
 import cn.kinkii.novice.framework.entity.LogicalDeleteable;
 import cn.kinkii.novice.framework.utils.KBeanUtils;
-
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.QuerydslJpaRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -19,6 +15,8 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
+import java.io.Serializable;
+import java.util.Date;
 
 @Transactional
 public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializable> extends QuerydslJpaRepository<E, ID> implements ModelRepository<E, ID> {

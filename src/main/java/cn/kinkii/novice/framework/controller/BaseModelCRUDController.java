@@ -3,22 +3,13 @@ package cn.kinkii.novice.framework.controller;
 import cn.kinkii.novice.framework.controller.exception.InternalServiceException;
 import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
 import cn.kinkii.novice.framework.entity.Identifiable;
-import cn.kinkii.novice.framework.controller.exception.InternalServiceException;
-import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
-import cn.kinkii.novice.framework.entity.Identifiable;
-
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.io.Serializable;
-import java.security.Principal;
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.Serializable;
+import java.security.Principal;
+import java.util.List;
 
 @Valid
 public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID extends Serializable> extends BaseModelController<E, ID> {

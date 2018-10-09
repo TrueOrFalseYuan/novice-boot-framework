@@ -5,12 +5,9 @@ import cn.kinkii.novice.framework.controller.request.GenericRequest;
 import cn.kinkii.novice.framework.controller.request.annotations.RequestProperty;
 import cn.kinkii.novice.framework.test.entity.ComplexEntity;
 import cn.kinkii.novice.framework.test.entity.SimpleEntity;
-import cn.kinkii.novice.framework.controller.request.AnnotatedRequest;
-import cn.kinkii.novice.framework.controller.request.GenericRequest;
-import cn.kinkii.novice.framework.controller.request.annotations.RequestProperty;
-import cn.kinkii.novice.framework.test.entity.ComplexEntity;
-import cn.kinkii.novice.framework.test.entity.SimpleEntity;
-
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,10 +15,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 public class RequestTest {
 

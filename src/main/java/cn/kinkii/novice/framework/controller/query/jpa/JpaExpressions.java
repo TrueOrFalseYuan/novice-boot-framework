@@ -3,14 +3,13 @@ package cn.kinkii.novice.framework.controller.query.jpa;
 import cn.kinkii.novice.framework.controller.query.Expression;
 import cn.kinkii.novice.framework.controller.query.Expressions;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
 
 @SuppressWarnings({"unchecked", "WeakerAccess"})
 public class JpaExpressions extends Expressions{

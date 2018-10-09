@@ -5,8 +5,6 @@ import cn.kinkii.novice.framework.utils.KGenericsUtils;
 
 import javax.persistence.AttributeConverter;
 
-import static cn.kinkii.novice.framework.utils.KGenericsUtils.getSuperclassGenericType;
-
 
 public abstract class ValuedEnumConverter<E extends ValuedEnum<V>, V> implements AttributeConverter<E, V> {
   private final Class<E> enumClazz;

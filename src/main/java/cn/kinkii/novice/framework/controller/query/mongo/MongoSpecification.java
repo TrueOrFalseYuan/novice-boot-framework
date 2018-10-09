@@ -1,13 +1,11 @@
 package cn.kinkii.novice.framework.controller.query.mongo;
 
 import cn.kinkii.novice.framework.controller.query.BaseQuerySpecification;
-import cn.kinkii.novice.framework.controller.query.BaseQuerySpecification;
 import cn.kinkii.novice.framework.controller.query.Junction;
 import cn.kinkii.novice.framework.controller.query.Order;
 import cn.kinkii.novice.framework.controller.query.annotations.QueryProperty;
 import cn.kinkii.novice.framework.entity.Identifiable;
 import cn.kinkii.novice.framework.utils.KReflectionUtils;
-
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;

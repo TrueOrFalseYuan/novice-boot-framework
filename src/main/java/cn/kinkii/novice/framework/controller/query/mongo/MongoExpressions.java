@@ -2,7 +2,6 @@ package cn.kinkii.novice.framework.controller.query.mongo;
 
 import cn.kinkii.novice.framework.controller.query.Expression;
 import cn.kinkii.novice.framework.controller.query.Expressions;
-
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.ArrayList;

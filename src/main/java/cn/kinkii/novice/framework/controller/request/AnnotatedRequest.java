@@ -1,6 +1,5 @@
 package cn.kinkii.novice.framework.controller.request;
 
-import cn.kinkii.novice.framework.utils.KReflectionUtils;
 import cn.kinkii.novice.framework.controller.request.annotations.RequestProperty;
 import cn.kinkii.novice.framework.utils.KReflectionUtils;
 import org.apache.commons.lang3.StringUtils;

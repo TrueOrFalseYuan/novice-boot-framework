@@ -1,7 +1,6 @@
 package cn.kinkii.novice.framework.controller;
 
 import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
-import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

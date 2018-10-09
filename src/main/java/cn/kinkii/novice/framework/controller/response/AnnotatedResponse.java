@@ -1,7 +1,6 @@
 package cn.kinkii.novice.framework.controller.response;
 
 
-import cn.kinkii.novice.framework.utils.KReflectionUtils;
 import cn.kinkii.novice.framework.controller.response.annotations.ResponseProperty;
 import cn.kinkii.novice.framework.utils.KReflectionUtils;
 import org.apache.commons.lang3.StringUtils;
