@@ -6,6 +6,7 @@ import cn.kinkii.novice.framework.service.ModelService;
 import cn.kinkii.novice.framework.utils.KGenericsUtils;
 import cn.kinkii.novice.framework.utils.KReflectionUtils;
 import com.google.common.collect.Lists;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.util.NumberUtils;
 
 import java.io.Serializable;
@@ -27,14 +28,14 @@ public abstract class BaseModelController<E extends Identifiable<ID>, ID extends
         return null;
     }
 
-    private Method respondsTo(Class clazz, String method, Class[] pTypes) {
-        return KReflectionUtils.findActualMethod(clazz, method, pTypes);
+    private Method respondsTo(Class clazz, String method, Class[] pTypes, Class<?> returnType) {
+        return KReflectionUtils.findActualMethod(clazz, method, pTypes, returnType);
     }
 
-    protected Object invokeRepositoryMethods(String methodName, Class[] pTypes, Object... params) {
+    protected Object invokeRepositoryMethods(String methodName, Class[] pTypes, Class<?> returnType, Object... params) {
         ModelRepository repository = getRepository();
         if (repository != null) {
-            Method method = respondsTo(repository.getClass(), methodName, pTypes);
+            Method method = respondsTo(AopUtils.getTargetClass(repository), methodName, pTypes, returnType);
             if (method != null) {
                 return KReflectionUtils.invokeMethod(method, repository, params);
             }
@@ -42,10 +43,10 @@ public abstract class BaseModelController<E extends Identifiable<ID>, ID extends
         throw new IllegalArgumentException("Unknown repository method!");
     }
 
-    protected Object invokeServiceMethods(String methodName, Class[] pTypes, Object... params) {
+    protected Object invokeServiceMethods(String methodName, Class[] pTypes, Class<?> returnType, Object... params) {
         ModelService service = getService();
         if (service != null) {
-            Method method = respondsTo(service.getClass(), methodName, pTypes);
+            Method method = respondsTo(AopUtils.getTargetClass(service), methodName, pTypes, returnType);
             if (method != null) {
                 return KReflectionUtils.invokeMethod(method, service, params);
             }
@@ -53,16 +54,20 @@ public abstract class BaseModelController<E extends Identifiable<ID>, ID extends
         throw new IllegalArgumentException("Unknown service method!");
     }
 
-    protected Object invokeMethods(String methodName, Class[] pTypes, Object... params) {
+    protected Object invokeMethods(String methodName, Class[] pTypes, Class<?> returnType, Object... params) {
         try {
-            return invokeServiceMethods(methodName, pTypes, params);
+            return invokeServiceMethods(methodName, pTypes, returnType, params);
         } catch (IllegalArgumentException e) {
-            return invokeRepositoryMethods(methodName, pTypes, params);
+            return invokeRepositoryMethods(methodName, pTypes, returnType, params);
         }
     }
 
+    protected Object invokeMethods(String methodName, Class[] pTypes, Class<?> returnType) {
+        return invokeMethods(methodName, pTypes, returnType, (Object) null);
+    }
+
     protected Object invokeMethods(String methodName, Object... params) {
-        return invokeMethods(methodName, null, params);
+        return invokeMethods(methodName, new Class[]{}, null, params);
     }
 
     protected Object invokeMethods(String methodName) {

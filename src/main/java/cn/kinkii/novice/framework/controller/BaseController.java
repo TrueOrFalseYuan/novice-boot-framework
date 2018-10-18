@@ -1,7 +1,5 @@
 package cn.kinkii.novice.framework.controller;
 
-import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,36 +19,7 @@ public abstract class BaseController {
     public BaseController() {
         logger = LoggerFactory.getLogger(getClass());
     }
-
-    /**
-     * 非空属性检查
-     *
-     * @param values 字段值
-     * @throws InvalidParamException
-     */
-    protected void checkNotBlank(String... values) throws InvalidParamException {
-        for (String value : values) {
-            if (StringUtils.isBlank(value)) {
-                throw new InvalidParamException(getMessage(GlobalMessage.ERROR_PARAMETER.getMessageKey()));
-            }
-        }
-    }
-
-    /**
-     * 非空属性检查
-     *
-     * @param values 字段值
-     * @throws InvalidParamException
-     */
-    protected void checkNotNull(Object... values) throws InvalidParamException {
-        for (Object value : values) {
-            if (value == null) {
-                throw new InvalidParamException(getMessage(GlobalMessage.ERROR_PARAMETER.getMessageKey()));
-            }
-        }
-    }
-
-
+    
     protected String getMessage(String messageCode) {
         return getMessage(messageCode, null);
     }
