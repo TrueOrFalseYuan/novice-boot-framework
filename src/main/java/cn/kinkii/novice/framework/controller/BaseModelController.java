@@ -6,7 +6,6 @@ import cn.kinkii.novice.framework.service.ModelService;
 import cn.kinkii.novice.framework.utils.KGenericsUtils;
 import cn.kinkii.novice.framework.utils.KReflectionUtils;
 import com.google.common.collect.Lists;
-import org.springframework.aop.support.AopUtils;
 import org.springframework.util.NumberUtils;
 
 import java.io.Serializable;
@@ -35,9 +34,9 @@ public abstract class BaseModelController<E extends Identifiable<ID>, ID extends
     protected Object invokeRepositoryMethods(String methodName, Class[] pTypes, Class<?> returnType, Object... params) {
         ModelRepository repository = getRepository();
         if (repository != null) {
-            Method method = respondsTo(AopUtils.getTargetClass(repository), methodName, pTypes, returnType);
+            Method method = respondsTo(KReflectionUtils.getTargetClass(repository), methodName, pTypes, returnType);
             if (method != null) {
-                return KReflectionUtils.invokeMethod(method, repository, params);
+                return KReflectionUtils.invokeProxyMethod(method, repository, params);
             }
         }
         throw new IllegalArgumentException("Unknown repository method!");
@@ -46,9 +45,9 @@ public abstract class BaseModelController<E extends Identifiable<ID>, ID extends
     protected Object invokeServiceMethods(String methodName, Class[] pTypes, Class<?> returnType, Object... params) {
         ModelService service = getService();
         if (service != null) {
-            Method method = respondsTo(AopUtils.getTargetClass(service), methodName, pTypes, returnType);
+            Method method = respondsTo(KReflectionUtils.getTargetClass(service), methodName, pTypes, returnType);
             if (method != null) {
-                return KReflectionUtils.invokeMethod(method, service, params);
+                return KReflectionUtils.invokeProxyMethod(method, service, params);
             }
         }
         throw new IllegalArgumentException("Unknown service method!");
@@ -83,12 +82,12 @@ public abstract class BaseModelController<E extends Identifiable<ID>, ID extends
             }
             if (Number.class.isAssignableFrom(idClazz)) {
                 strIds.forEach(strId -> {
-                        try {
-                            parsedIds.add((ID) NumberUtils.parseNumber((String) strId, idClazz));
-                        } catch (Exception e) {
-                            throw new IllegalArgumentException("Parsing id value(${strId}) failed! ");
+                            try {
+                                parsedIds.add((ID) NumberUtils.parseNumber((String) strId, idClazz));
+                            } catch (Exception e) {
+                                throw new IllegalArgumentException("Parsing id value(${strId}) failed! ");
+                            }
                         }
-                    }
                 );
             } else if (idClazz == String.class) {
                 parsedIds.addAll(strIds);

@@ -1,5 +1,9 @@
 package cn.kinkii.novice.framework.utils;
 
+import org.springframework.aop.framework.AdvisedSupport;
+import org.springframework.aop.framework.AopProxy;
+import org.springframework.aop.support.AopUtils;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
@@ -10,6 +14,52 @@ import java.util.Arrays;
 import java.util.List;
 
 public class KReflectionUtils extends ReflectionUtils {
+
+    public static Object invokeProxyMethod(Method method, Object target, Object... args) {
+        try {
+            return invokeMethod(method, getTarget(target), args);
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not access method " + method + "! - " + e.getMessage());
+        }
+    }
+
+    public static Object getTarget(Object proxy) throws Exception {
+        if (!AopUtils.isAopProxy(proxy)) {
+            return proxy;//不是代理对象
+        }
+        if (AopUtils.isJdkDynamicProxy(proxy)) {
+            return getJdkDynamicProxyTargetObject(proxy);
+        } else { //cglib
+            return getCglibProxyTargetObject(proxy);
+        }
+    }
+
+    private static Object getCglibProxyTargetObject(Object proxy) throws Exception {
+        Field h = proxy.getClass().getDeclaredField("CGLIB$CALLBACK_0");
+        h.setAccessible(true);
+        Object dynamicAdvisedInterceptor = h.get(proxy);
+        Field advised = dynamicAdvisedInterceptor.getClass().getDeclaredField("advised");
+        advised.setAccessible(true);
+        return ((AdvisedSupport) advised.get(dynamicAdvisedInterceptor)).getTargetSource().getTarget();
+    }
+
+
+    private static Object getJdkDynamicProxyTargetObject(Object proxy) throws Exception {
+        Field h = proxy.getClass().getSuperclass().getDeclaredField("h");
+        h.setAccessible(true);
+        AopProxy aopProxy = (AopProxy) h.get(proxy);
+        Field advised = aopProxy.getClass().getDeclaredField("advised");
+        advised.setAccessible(true);
+        return ((AdvisedSupport) advised.get(aopProxy)).getTargetSource().getTarget();
+    }
+
+    public static Class<?> getTargetClass(Object proxy) {
+        if (AopUtils.isAopProxy(proxy)) {
+            return AopUtils.getTargetClass(proxy);
+        } else {
+            return proxy.getClass();//不是代理对象
+        }
+    }
 
     public static Method findActualMethod(Class<?> clazz, String name) {
         return findActualMethod(clazz, name, null, null);
@@ -28,26 +78,9 @@ public class KReflectionUtils extends ReflectionUtils {
         Assert.notNull(name, "Method name must not be null");
 
         List<Method> results = new ArrayList<>();
-        doWithMethods(clazz, new MethodCallback() {
-            @Override
-            public void doWith(Method m) throws IllegalArgumentException, IllegalAccessException {
-                results.add(m);
-            }
-        }, new MethodFilter() {
-            @Override
-            public boolean matches(Method m) {
-                if (name.equals(m.getName())) {
-                    System.out.println(m.getName());
-                    if ((pTypes == null || Arrays.equals(pTypes, m.getParameterTypes())) && (returnType == null || returnType == m.getReturnType())) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-//    doWithMethods(clazz, results::add, m -> (name.equals(m.getName()) &&
-//                                             (pTypes == null || Arrays.equals(pTypes, m.getParameterTypes())) &&
-//                                             (returnType == null || returnType == m.getReturnType())));
+        doWithMethods(clazz, results::add, m -> (name.equals(m.getName()) &&
+                (pTypes == null || Arrays.equals(pTypes, m.getParameterTypes())) &&
+                (returnType == null || returnType == m.getReturnType())));
 
         if (results.size() == 0) {
             return null;
@@ -55,9 +88,9 @@ public class KReflectionUtils extends ReflectionUtils {
             return results.get(0);
         } else {
             throw new IllegalStateException(
-                String.format("Class<%s> has <%d> methods named <%s>, please specify the parameter types or the return type!",
-                    clazz.getCanonicalName(), results.size(), name
-                ));
+                    String.format("Class<%s> has <%d> methods named <%s>, please specify the parameter types or the return type!",
+                            clazz.getCanonicalName(), results.size(), name
+                    ));
         }
     }
 
