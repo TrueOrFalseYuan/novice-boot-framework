@@ -8,6 +8,7 @@ import cn.kinkii.novice.framework.utils.KReflectionUtils;
 import com.google.common.collect.Lists;
 import org.springframework.util.NumberUtils;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -31,46 +32,26 @@ public abstract class BaseModelController<E extends Identifiable<ID>, ID extends
         return KReflectionUtils.findActualMethod(clazz, method, pTypes, returnType);
     }
 
-    protected Object invokeRepositoryMethods(String methodName, Class[] pTypes, Class<?> returnType, Object... params) {
-        ModelRepository repository = getRepository();
-        if (repository != null) {
-            Method method = respondsTo(KReflectionUtils.getTargetClass(repository), methodName, pTypes, returnType);
+    protected Object invoke(Object target, String methodName, Class[] pTypes, Class<?> returnType, Object... params) {
+        if (target != null) {
+            Method method = respondsTo(target.getClass(), methodName, pTypes, returnType);
             if (method != null) {
-                return KReflectionUtils.invokeProxyMethod(method, repository, params);
+                return KReflectionUtils.invokeMethod(method, target, params);
             }
         }
-        throw new IllegalArgumentException("Unknown repository method!");
-    }
-
-    protected Object invokeServiceMethods(String methodName, Class[] pTypes, Class<?> returnType, Object... params) {
-        ModelService service = getService();
-        if (service != null) {
-            Method method = respondsTo(KReflectionUtils.getTargetClass(service), methodName, pTypes, returnType);
-            if (method != null) {
-                return KReflectionUtils.invokeProxyMethod(method, service, params);
-            }
-        }
-        throw new IllegalArgumentException("Unknown service method!");
+        throw new IllegalArgumentException("Unknown method!");
     }
 
     protected Object invokeMethods(String methodName, Class[] pTypes, Class<?> returnType, Object... params) {
         try {
-            return invokeServiceMethods(methodName, pTypes, returnType, params);
+            return invoke(getService(), methodName, pTypes, returnType, params);
         } catch (IllegalArgumentException e) {
-            return invokeRepositoryMethods(methodName, pTypes, returnType, params);
+            return invoke(getRepository(), methodName, pTypes, returnType, params);
         }
-    }
-
-    protected Object invokeMethods(String methodName, Class[] pTypes, Class<?> returnType) {
-        return invokeMethods(methodName, pTypes, returnType, (Object) null);
     }
 
     protected Object invokeMethods(String methodName, Object... params) {
         return invokeMethods(methodName, new Class[]{}, null, params);
-    }
-
-    protected Object invokeMethods(String methodName) {
-        return invokeMethods(methodName, (Object) null);
     }
 
     protected List<ID> parseIdString(String ids) {

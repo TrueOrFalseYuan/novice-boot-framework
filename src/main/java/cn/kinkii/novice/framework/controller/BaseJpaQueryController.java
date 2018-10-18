@@ -16,7 +16,7 @@ import java.io.Serializable;
 import java.security.Principal;
 import java.util.List;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "WeakerAccess"})
 @Valid
 public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID extends Serializable, Q extends JpaQuery<E>> extends BaseModelController<E, ID> {
 
@@ -27,13 +27,13 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     @ResponseBody
     protected List<E> query(@RequestBody Q query, Principal principal) {
         handleQuery(query, principal);
-        return (List<E>) invokeRepositoryMethods("findAll", new Class[]{Specification.class}, List.class, new JpaQuerySpecification(query));
+        return (List<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class}, List.class, new JpaQuerySpecification(query));
     }
 
     @RequestMapping(value = "/query/page", method = RequestMethod.POST)
     @ResponseBody
     protected Page<E> queryByPage(@RequestBody Q query, Pageable pageable, Principal principal) {
         handleQuery(query, principal);
-        return (Page<E>) invokeRepositoryMethods("findAll", new Class[]{Specification.class, Pageable.class}, List.class, new Object[]{new JpaQuerySpecification(query), pageable});
+        return (Page<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class, Pageable.class}, List.class, new Object[]{new JpaQuerySpecification(query), pageable});
     }
 }

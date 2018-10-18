@@ -15,6 +15,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings({"unchecked", "WeakerAccess"})
 @Valid
 public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID extends Serializable> extends BaseModelController<E, ID> {
 

@@ -15,54 +15,9 @@ import java.util.List;
 
 public class KReflectionUtils extends ReflectionUtils {
 
-    public static Object invokeProxyMethod(Method method, Object target, Object... args) {
-        try {
-            return invokeMethod(method, getTarget(target), args);
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not access method " + method + "! - " + e.getMessage());
-        }
-    }
-
-    public static Object getTarget(Object proxy) throws Exception {
-        if (!AopUtils.isAopProxy(proxy)) {
-            return proxy;//不是代理对象
-        }
-        if (AopUtils.isJdkDynamicProxy(proxy)) {
-            return getJdkDynamicProxyTargetObject(proxy);
-        } else { //cglib
-            return getCglibProxyTargetObject(proxy);
-        }
-    }
-
-    private static Object getCglibProxyTargetObject(Object proxy) throws Exception {
-        Field h = proxy.getClass().getDeclaredField("CGLIB$CALLBACK_0");
-        h.setAccessible(true);
-        Object dynamicAdvisedInterceptor = h.get(proxy);
-        Field advised = dynamicAdvisedInterceptor.getClass().getDeclaredField("advised");
-        advised.setAccessible(true);
-        return ((AdvisedSupport) advised.get(dynamicAdvisedInterceptor)).getTargetSource().getTarget();
-    }
-
-
-    private static Object getJdkDynamicProxyTargetObject(Object proxy) throws Exception {
-        Field h = proxy.getClass().getSuperclass().getDeclaredField("h");
-        h.setAccessible(true);
-        AopProxy aopProxy = (AopProxy) h.get(proxy);
-        Field advised = aopProxy.getClass().getDeclaredField("advised");
-        advised.setAccessible(true);
-        return ((AdvisedSupport) advised.get(aopProxy)).getTargetSource().getTarget();
-    }
-
-    public static Class<?> getTargetClass(Object proxy) {
-        if (AopUtils.isAopProxy(proxy)) {
-            return AopUtils.getTargetClass(proxy);
-        } else {
-            return proxy.getClass();//不是代理对象
-        }
-    }
 
     public static Method findActualMethod(Class<?> clazz, String name) {
-        return findActualMethod(clazz, name, null, null);
+        return findActualMethod(clazz, name, new Class[]{}, null);
     }
 
     public static Method findActualMethod(Class<?> clazz, String name, Class<?>[] pTypes) {
@@ -70,7 +25,7 @@ public class KReflectionUtils extends ReflectionUtils {
     }
 
     public static Method findActualMethod(Class<?> clazz, String name, Class<?> returnType) {
-        return findActualMethod(clazz, name, null, returnType);
+        return findActualMethod(clazz, name, new Class[]{}, returnType);
     }
 
     public static Method findActualMethod(Class<?> clazz, String name, Class<?>[] pTypes, Class<?> returnType) {
