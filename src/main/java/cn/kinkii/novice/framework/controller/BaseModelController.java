@@ -59,7 +59,7 @@ public abstract class BaseModelController<E extends Identifiable<ID>, ID extends
     }
 
     protected Object invokeMethods(String methodName, Object... params) {
-        return invokeMethods(methodName, new Class[]{}, null, params);
+        return invokeMethods(methodName, null, null, params);
     }
 
     protected List<ID> parseIdString(String ids) {
