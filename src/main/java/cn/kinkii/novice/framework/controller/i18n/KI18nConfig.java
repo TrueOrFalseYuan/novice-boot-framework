@@ -45,16 +45,8 @@ public abstract class KI18nConfig extends WebMvcConfigurerAdapter {
         return messageSource;
     }
 
-    private List<String> getBaseNames() {
-        List<String> baseNames = Arrays.asList("classpath:i18n/global.message");
-        List<String> additionalBaseNames = getAdditionalBaseNames();
-        if (additionalBaseNames != null) {
-            baseNames.addAll(additionalBaseNames);
-        }
-        return baseNames;
-
+    protected List<String> getBaseNames() {
+        return Arrays.asList("classpath:i18n/global.message");
     }
 
-    @SuppressWarnings("WeakerAccess")
-    protected abstract List<String> getAdditionalBaseNames();
 }
