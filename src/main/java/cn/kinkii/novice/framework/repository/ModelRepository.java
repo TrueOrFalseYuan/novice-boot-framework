@@ -19,7 +19,5 @@ public interface ModelRepository<E extends Identifiable<ID>, ID extends Serializ
 
     void patch(E model);
 
-    void deleteById(ID id);
-
     void deleteInBatchById(Iterable<ID> id);
 }
