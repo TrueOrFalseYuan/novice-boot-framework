@@ -10,6 +10,8 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 public abstract class KI18nConfig extends WebMvcConfigurerAdapter {
@@ -38,10 +40,21 @@ public abstract class KI18nConfig extends WebMvcConfigurerAdapter {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setCacheSeconds(5);
         messageSource.setDefaultEncoding(StandardCharsets.UTF_8.name());
-        messageSource.setBasenames(getBasenames());
+        messageSource.setBasenames(getBaseNames().toArray(new String[]{}));
         messageSource.setUseCodeAsDefaultMessage(true);
         return messageSource;
     }
 
-    protected abstract String[] getBasenames();
+    private List<String> getBaseNames() {
+        List<String> baseNames = Arrays.asList("classpath:i18n/global.message");
+        List<String> additionalBaseNames = getAdditionalBaseNames();
+        if (additionalBaseNames != null) {
+            baseNames.addAll(additionalBaseNames);
+        }
+        return baseNames;
+
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    protected abstract List<String> getAdditionalBaseNames();
 }
