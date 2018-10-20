@@ -36,7 +36,7 @@ public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID ex
     public E get(@PathVariable("id") ID id, Principal principal) {
         try {
             handleGet(principal);
-            return ((Optional<E>) invokeMethods("findById", id)).get();
+            return ((Optional<E>) invokeMethods("findById", new Class[]{Object.class}, Optional.class, id)).get();
         } catch (RuntimeException ignored) {
             throw new InternalServiceException(getMessage(GlobalMessage.ERROR_SERVICE.getMessageKey()));
         }

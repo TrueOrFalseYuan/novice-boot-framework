@@ -8,7 +8,6 @@ import cn.kinkii.novice.framework.utils.KReflectionUtils;
 import com.google.common.collect.Lists;
 import org.springframework.util.NumberUtils;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -59,7 +58,7 @@ public abstract class BaseModelController<E extends Identifiable<ID>, ID extends
     }
 
     protected Object invokeMethods(String methodName, Object... params) {
-        return invokeMethods(methodName, null, null, params);
+        return invokeMethods(methodName, new Class[]{}, null, params);
     }
 
     protected List<ID> parseIdString(String ids) {
