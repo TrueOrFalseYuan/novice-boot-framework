@@ -1,6 +1,8 @@
 package cn.kinkii.novice.framework.controller;
 
 
+import lombok.Getter;
+
 public enum GlobalMessage {
 
     SUCCESS("global.success"),
@@ -29,13 +31,11 @@ public enum GlobalMessage {
     BATCHDELETE_SUCCESS("global.batchdelete.success"),
     BATCHDELETE_FAILURE("global.batchdelete.failure");
 
+    @Getter
     private String messageKey;
 
     GlobalMessage(String messageKey) {
         this.messageKey = messageKey;
     }
 
-    public String getMessageKey() {
-        return messageKey;
-    }
 }
