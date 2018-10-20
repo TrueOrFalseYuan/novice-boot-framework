@@ -65,7 +65,7 @@ public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID ex
         }
         try {
             handleQueryAll(principal);
-            return (Page<E>) invokeMethods("findAll", pageable);
+            return (Page<E>) invokeMethods("findAll", new Class[]{Pageable.class}, Page.class, pageable);
         } catch (RuntimeException ignored) {
             throw new InternalServiceException(getMessage(GlobalMessage.ERROR_SERVICE.getMessageKey()));
         }
