@@ -34,6 +34,7 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
     }
 
     @Override
+    @Transactional
     public void delete(E entity) {
         if (!LogicalDeleteable.class.isAssignableFrom(getDomainClass())) {
             super.delete(entity);
@@ -43,6 +44,7 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
     }
 
     @Override
+    @Transactional
     public void deleteById(ID id) {
         if (!LogicalDeleteable.class.isAssignableFrom(getDomainClass())) {
             super.deleteById(id);
@@ -52,6 +54,7 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
     }
 
     @Override
+    @Transactional
     public void deleteInBatch(Iterable<E> entities) {
         if (!LogicalDeleteable.class.isAssignableFrom(getDomainClass())) {
             super.deleteInBatch(entities);
@@ -62,6 +65,7 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
     }
 
     @Override
+    @Transactional
     public void deleteInBatchById(Iterable<ID> ids) {
         if (!LogicalDeleteable.class.isAssignableFrom(getDomainClass())) {
             CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -80,6 +84,7 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
     }
 
     @Override
+    @Transactional
     public void deleteAllInBatch() {
         if (!LogicalDeleteable.class.isAssignableFrom(getDomainClass())) {
             super.deleteAllInBatch();
