@@ -34,6 +34,6 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     @ResponseBody
     protected Page<E> queryByPage(@RequestBody Q query, Pageable pageable, Principal principal) {
         handleQuery(query, principal);
-        return (Page<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class, Pageable.class}, List.class, new Object[]{new JpaQuerySpecification(query), pageable});
+        return (Page<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class, Pageable.class}, Page.class, new Object[]{new JpaQuerySpecification(query), pageable});
     }
 }
