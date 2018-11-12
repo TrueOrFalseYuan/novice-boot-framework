@@ -3,6 +3,7 @@ package cn.kinkii.novice.framework.controller;
 import cn.kinkii.novice.framework.controller.exception.InternalServiceException;
 import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
 import cn.kinkii.novice.framework.entity.Identifiable;
+import com.google.common.collect.Lists;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -134,7 +135,7 @@ public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID ext
         handleBatchDelete(parsedIds, principal, request);
         if (!parsedIds.isEmpty()) {
             try {
-                invokeMethods("deleteInBatch", new Class[]{Iterable.class}, null, parsedIds);
+                invokeMethods("deleteInBatchById", new Class[]{Iterable.class}, null, parsedIds);
                 return BaseResult.success(getMessage(GlobalMessage.BATCHDELETE_SUCCESS.getMessageKey()));
             } catch (RuntimeException ignored) {
                 throw new InternalServiceException(getMessage(GlobalMessage.BATCHDELETE_FAILURE.getMessageKey()));
