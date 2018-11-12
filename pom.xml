@@ -36,6 +36,9 @@
         <commons-io.version>2.6</commons-io.version>
         <commons-collections4.version>4.2</commons-collections4.version>
         <commons-codec.version>1.11</commons-codec.version>
+
+        <lombok.version>1.16.22</lombok.version>
+        <guava.version>27.0-jre</guava.version>
     </properties>
 
     <dependencies>
@@ -98,6 +101,12 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -129,7 +138,6 @@
             <artifactId>commons-codec</artifactId>
             <version>${commons-codec.version}</version>
         </dependency>
-
 
         <!-- Data Utils -->
         <dependency>
