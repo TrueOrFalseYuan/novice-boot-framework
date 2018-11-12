@@ -33,6 +33,7 @@ public class BaseControllerHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseControllerHandler.class);
 
     private static final String EXCEPTION_DETAIL = "detail";
+    private static final String EXCEPTION_SERVICE_ERROR_PREFIX = "service.error.";
 
     @Autowired
     private MessageSource messageSource;
@@ -70,7 +71,7 @@ public class BaseControllerHandler {
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(ServiceException exception) {
         LOGGER.error("checked service error:" + exception.getMessage(), exception);
-        return buildResult(exception, GlobalMessage.ERROR_SERVICE);
+        return buildResult(exception.getCode(), exception, EXCEPTION_SERVICE_ERROR_PREFIX + exception.getCode(), GlobalMessage.ERROR_SERVICE.getMessageKey());
     }
 
     @ExceptionHandler
@@ -109,34 +110,44 @@ public class BaseControllerHandler {
         return buildResult(GlobalExceptionCode.HTTP_MESSAGE_NOT_READABLE_CODE, exception, GlobalMessage.ERROR_DATA);
     }
 
-
     private String getMessage(String messageCode) {
         return getMessage(messageCode, null);
     }
 
-    private String getMessage(String messageCode, Object[] params) {
+    private String getMessage(String messageCode, String defaultMessageCode) {
+        //set use-code-as-default-message to false
         Locale currentLocal = LocaleContextHolder.getLocale();
+        String message = null;
         try {
-            return messageSource.getMessage(messageCode, params, currentLocal);
-        } catch (NoSuchMessageException e) {
-            return messageCode;
+            message = messageSource.getMessage(messageCode, null, currentLocal);
+        } catch (NoSuchMessageException ignored) {
         }
+        if (message == null && defaultMessageCode != null) {
+            try {
+                message = messageSource.getMessage(defaultMessageCode, null, currentLocal);
+            } catch (NoSuchMessageException ignored) {
+            }
+        }
+        if (message == null) {
+            message = messageCode;
+        }
+        return message;
     }
 
-    private BaseResult buildResult(BaseException e, GlobalMessage message) {
+
+    private BaseResult buildResult(BaseException cause, GlobalMessage message) {
+        return buildResult(cause.getCode(), cause, message);
+    }
+
+    private BaseResult buildResult(Integer code, Exception cause, GlobalMessage message) {
+        return buildResult(code, cause, message.getMessageKey(), null);
+    }
+
+    private BaseResult buildResult(Integer code, Exception e, String messageKey, String defaultMessageKey) {
         if (StringUtils.hasText(e.getMessage())) {
-            return BaseResult.failure(e.getCode(), getMessage(message.getMessageKey())).addValue(EXCEPTION_DETAIL, e.getMessage());
+            return BaseResult.failure(code, getMessage(messageKey, defaultMessageKey)).addValue(EXCEPTION_DETAIL, e.getMessage());
         } else {
-            return BaseResult.failure(e.getCode(), getMessage(message.getMessageKey()));
+            return BaseResult.failure(code, getMessage(messageKey, defaultMessageKey));
         }
     }
-
-    private BaseResult buildResult(Integer code, Exception e, GlobalMessage message) {
-        if (StringUtils.hasText(e.getMessage())) {
-            return BaseResult.failure(code, getMessage(message.getMessageKey())).addValue(EXCEPTION_DETAIL, e.getMessage());
-        } else {
-            return BaseResult.failure(code, getMessage(message.getMessageKey()));
-        }
-    }
-
 }
