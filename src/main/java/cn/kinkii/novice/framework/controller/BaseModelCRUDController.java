@@ -3,6 +3,7 @@ package cn.kinkii.novice.framework.controller;
 import cn.kinkii.novice.framework.controller.exception.InternalServiceException;
 import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
 import cn.kinkii.novice.framework.entity.Identifiable;
+import com.google.common.collect.Lists;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +11,7 @@ import javax.validation.Valid;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 @Valid
 public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID extends Serializable> extends BaseModelController<E, ID> {
@@ -52,7 +54,7 @@ public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID ext
         }
         E newModel = handleCreate(model, principal, request);
         try {
-            invokeMethods("create", newModel);
+            invokeMethods("create", new Class[]{Identifiable.class}, null, newModel);
             return BaseResult.success(getMessage(GlobalMessage.CREATE_SUCCESS.getMessageKey())).addValue("id", newModel.getId());
         } catch (RuntimeException ignored) {
             throw new InternalServiceException(getMessage(GlobalMessage.CREATE_FAILURE.getMessageKey()));
@@ -65,14 +67,14 @@ public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID ext
         if (!canUpdate(principal)) {
             return null;
         }
-        if (!(Boolean) invokeMethods("existsById", id)) {
+        if (!(Boolean) invokeMethods("existsById", new Class[]{Object.class}, boolean.class, id)) {
             throw new InvalidParamException(getMessage(GlobalMessage.UPDATE_FAILURE_NOT_EXISTED.getMessageKey()));
         }
 
         model.setId(id);
         E updatingModel = handleUpdate(model, principal, request);
         try {
-            invokeMethods("update", updatingModel);
+            invokeMethods("update", new Class[]{Identifiable.class}, null, updatingModel);
             return BaseResult.success(getMessage(GlobalMessage.UPDATE_SUCCESS.getMessageKey()));
         } catch (Exception ignored) {
             throw new InternalServiceException(getMessage(GlobalMessage.UPDATE_FAILURE.getMessageKey()));
@@ -85,13 +87,13 @@ public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID ext
         if (!canPatch(principal)) {
             return null;
         }
-        if (!(Boolean) invokeMethods("existsById", id)) {
+        if (!(Boolean) invokeMethods("existsById", new Class[]{Object.class}, boolean.class, id)) {
             throw new InvalidParamException(getMessage(GlobalMessage.UPDATE_FAILURE_NOT_EXISTED.getMessageKey()));
         }
         modelData.setId(id);
         E patchData = handlePatch(modelData, principal, request);
         try {
-            invokeMethods("patch", patchData);
+            invokeMethods("patch", new Class[]{Identifiable.class}, null, patchData);
             return BaseResult.success(getMessage(GlobalMessage.UPDATE_SUCCESS.getMessageKey()));
         } catch (RuntimeException ignored) {
             throw new InternalServiceException(getMessage(GlobalMessage.UPDATE_FAILURE.getMessageKey()));
@@ -104,12 +106,12 @@ public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID ext
         if (!canDelete(principal)) {
             return null;
         }
-        if (!(Boolean) invokeMethods("existsById", id)) {
+        if (!(Boolean) invokeMethods("existsById", new Class[]{Object.class}, boolean.class, id)) {
             throw new InvalidParamException(getMessage(GlobalMessage.DELETE_FAILURE_NOT_EXISTED.getMessageKey()));
         }
         handleDelete(id, principal, request);
         try {
-            invokeMethods("deleteById", id);
+            invokeMethods("deleteById", new Class[]{Object.class}, null, id);
             return BaseResult.success(getMessage(GlobalMessage.DELETE_SUCCESS.getMessageKey()));
         } catch (RuntimeException ignored) {
             throw new InternalServiceException(getMessage(GlobalMessage.DELETE_FAILURE.getMessageKey()));
@@ -133,7 +135,7 @@ public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID ext
         handleBatchDelete(parsedIds, principal, request);
         if (!parsedIds.isEmpty()) {
             try {
-                invokeMethods("deleteInBatch", parsedIds);
+                invokeMethods("deleteInBatchById", new Class[]{Iterable.class}, null, parsedIds);
                 return BaseResult.success(getMessage(GlobalMessage.BATCHDELETE_SUCCESS.getMessageKey()));
             } catch (RuntimeException ignored) {
                 throw new InternalServiceException(getMessage(GlobalMessage.BATCHDELETE_FAILURE.getMessageKey()));
