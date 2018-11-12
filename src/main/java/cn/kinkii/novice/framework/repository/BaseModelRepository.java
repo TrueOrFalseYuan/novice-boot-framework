@@ -3,6 +3,7 @@ package cn.kinkii.novice.framework.repository;
 import cn.kinkii.novice.framework.entity.Identifiable;
 import cn.kinkii.novice.framework.entity.LogicalDeleteable;
 import cn.kinkii.novice.framework.utils.KBeanUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.QuerydslJpaRepository;
@@ -18,7 +19,8 @@ import javax.transaction.Transactional;
 import java.io.Serializable;
 import java.util.Date;
 
-@Transactional
+@SuppressWarnings("unused")
+@Slf4j
 public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializable> extends QuerydslJpaRepository<E, ID> implements ModelRepository<E, ID> {
 
     private final EntityManager entityManager;
@@ -34,7 +36,6 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
     }
 
     @Override
-    @Transactional
     public void delete(E entity) {
         if (!LogicalDeleteable.class.isAssignableFrom(getDomainClass())) {
             super.delete(entity);
@@ -44,7 +45,6 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
     }
 
     @Override
-    @Transactional
     public void deleteById(ID id) {
         if (!LogicalDeleteable.class.isAssignableFrom(getDomainClass())) {
             super.deleteById(id);
@@ -94,6 +94,16 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
     }
 
     @Override
+    public void create(E model) {
+        this.saveAndFlush(model);
+    }
+
+    @Override
+    public void update(E model) {
+        this.saveAndFlush(model);
+    }
+
+    @Override
     public void patch(E model) {
         E entity = this.findById(model.getId()).orElseThrow(() ->
                 new EmptyResultDataAccessException(String.format("No %s entity with id %s exists!", entityInformation.getJavaType(), model.getId()), 1)
@@ -130,18 +140,10 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
 
             return criteriaUpdate;
         } catch (InstantiationException | IllegalAccessException e) {
+            log.error("Failed to build criteria for logical delete!", e);
             e.printStackTrace();
         }
         return null;
     }
 
-    @Override
-    public void create(E model) {
-        this.saveAndFlush(model);
-    }
-
-    @Override
-    public void update(E model) {
-        this.saveAndFlush(model);
-    }
 }
