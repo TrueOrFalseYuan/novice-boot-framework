@@ -8,6 +8,7 @@ import cn.kinkii.novice.framework.exception.BaseException;
 import cn.kinkii.novice.framework.service.exception.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
@@ -17,7 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -40,53 +43,53 @@ public class BaseControllerHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(InternalServiceException exception) {
-        LOGGER.error("internal error:" + exception.getMessage(), exception);
-        return buildResult(exception, GlobalMessage.ERROR_SERVICE);
+    public BaseResult handle(InternalServiceException ex) {
+        LOGGER.error("internal error:" + ex.getMessage(), ex);
+        return buildResult(ex, GlobalMessage.ERROR_SERVICE);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(InvalidParamException exception) {
-        LOGGER.error("invalid params error:" + exception.getMessage(), exception);
-        return buildResult(exception, GlobalMessage.ERROR_PARAMETER);
+    public BaseResult handle(InvalidParamException ex) {
+        LOGGER.error("invalid params error:" + ex.getMessage(), ex);
+        return buildResult(ex, GlobalMessage.ERROR_PARAMETER);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(InvalidDataException exception) {
-        LOGGER.error("invalid data error:" + exception.getMessage(), exception);
-        return buildResult(exception, GlobalMessage.ERROR_DATA);
+    public BaseResult handle(InvalidDataException ex) {
+        LOGGER.error("invalid data error:" + ex.getMessage(), ex);
+        return buildResult(ex, GlobalMessage.ERROR_DATA);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(IllegalPermissionException exception) {
-        LOGGER.error("illegal permission error:" + exception.getMessage(), exception);
-        return buildResult(exception, GlobalMessage.ERROR_PERMISSION);
+    public BaseResult handle(IllegalPermissionException ex) {
+        LOGGER.error("illegal permission error:" + ex.getMessage(), ex);
+        return buildResult(ex, GlobalMessage.ERROR_PERMISSION);
     }
 
     @ExceptionHandler
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(ServiceException exception) {
-        LOGGER.error("checked service error:" + exception.getMessage(), exception);
-        return buildResult(exception.getCode(), exception, EXCEPTION_SERVICE_ERROR_PREFIX + exception.getCode(), GlobalMessage.ERROR_SERVICE.getMessageKey());
+    public BaseResult handle(ServiceException ex) {
+        LOGGER.error("checked service error:" + ex.getMessage(), ex);
+        return buildResult(ex.getCode(), ex, EXCEPTION_SERVICE_ERROR_PREFIX + ex.getCode(), GlobalMessage.ERROR_SERVICE.getMessageKey());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(DataAccessException exception) {
-        LOGGER.error("data access error:" + exception.getMessage(), exception);
-        return BaseResult.failure(GlobalExceptionCode.DATA_ACCESS_EXCEPTION_CODE, GlobalMessage.ERROR_DATA.getMessageKey());
+    public BaseResult handle(DataAccessException ex) {
+        LOGGER.error("data access error:" + ex.getMessage(), ex);
+        return buildResult(GlobalExceptionCode.INVALID_DATA_EXCEPTION_CODE, ex, GlobalMessage.ERROR_DATA);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(ConstraintViolationException exception) {
-        LOGGER.error("constraint violation error:" + exception.getMessage(), exception);
-        BaseResult baseResult = BaseResult.failure(GlobalExceptionCode.DATA_ACCESS_EXCEPTION_CODE, GlobalMessage.ERROR_DATA.getMessageKey());
-        exception.getConstraintViolations().forEach(constraintViolation -> {
+    public BaseResult handle(ConstraintViolationException ex) {
+        LOGGER.error("constraint violation error:" + ex.getMessage(), ex);
+        BaseResult baseResult = buildResult(GlobalExceptionCode.INVALID_DATA_EXCEPTION_CODE, ex, GlobalMessage.ERROR_DATA);
+        ex.getConstraintViolations().forEach(constraintViolation -> {
             baseResult.addValue(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage());
         });
         return baseResult;
@@ -94,10 +97,10 @@ public class BaseControllerHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(MethodArgumentNotValidException exception) {
-        LOGGER.error("method args not valid error:" + exception.getMessage(), exception);
-        BaseResult baseResult = BaseResult.failure(GlobalExceptionCode.DATA_ACCESS_EXCEPTION_CODE, GlobalMessage.ERROR_DATA.getMessageKey());
-        exception.getBindingResult().getFieldErrors().forEach(fieldError -> {
+    public BaseResult handle(BindException ex) {
+        LOGGER.error("invalid params error:" + ex.getMessage(), ex);
+        BaseResult baseResult = buildResult(GlobalExceptionCode.INVALID_PARAM_EXCEPTION_CODE, ex, GlobalMessage.ERROR_PARAMETER);
+        ex.getBindingResult().getFieldErrors().forEach(fieldError -> {
             baseResult.addValue(fieldError.getField(), fieldError.getDefaultMessage());
         });
         return baseResult;
@@ -105,9 +108,34 @@ public class BaseControllerHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(HttpMessageNotReadableException exception) {
-        LOGGER.error("http message not readable error:" + exception.getMessage(), exception);
-        return buildResult(GlobalExceptionCode.HTTP_MESSAGE_NOT_READABLE_CODE, exception, GlobalMessage.ERROR_DATA);
+    public BaseResult handle(MethodArgumentNotValidException ex) {
+        LOGGER.error("method args not valid error:" + ex.getMessage(), ex);
+        BaseResult baseResult = buildResult(GlobalExceptionCode.INVALID_PARAM_EXCEPTION_CODE, ex, GlobalMessage.ERROR_PARAMETER);
+        ex.getBindingResult().getFieldErrors().forEach(fieldError -> {
+            baseResult.addValue(fieldError.getField(), fieldError.getDefaultMessage());
+        });
+        return baseResult;
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResult handle(MissingServletRequestParameterException ex) {
+        LOGGER.error("missing request parameter mismatch:" + ex.getMessage(), ex);
+        return buildResult(GlobalExceptionCode.INVALID_PARAM_EXCEPTION_CODE, ex, GlobalMessage.ERROR_PARAMETER);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResult handle(HttpMessageNotReadableException ex) {
+        LOGGER.error("http message not readable:" + ex.getMessage(), ex);
+        return buildResult(GlobalExceptionCode.BAD_REQUEST_EXCEPTION_CODE, ex, GlobalMessage.ERROR_REQUEST);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResult handle(TypeMismatchException ex) {
+        LOGGER.error("type mismatch:" + ex.getMessage(), ex);
+        return buildResult(GlobalExceptionCode.BAD_REQUEST_EXCEPTION_CODE, ex, GlobalMessage.ERROR_REQUEST);
     }
 
     private String getMessage(String messageCode) {
