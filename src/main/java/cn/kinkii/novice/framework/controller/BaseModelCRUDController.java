@@ -3,7 +3,6 @@ package cn.kinkii.novice.framework.controller;
 import cn.kinkii.novice.framework.controller.exception.InternalServiceException;
 import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
 import cn.kinkii.novice.framework.entity.Identifiable;
-import com.google.common.collect.Lists;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,7 +10,6 @@ import javax.validation.Valid;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
 
 @Valid
 public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID extends Serializable> extends BaseModelController<E, ID> {
@@ -48,7 +46,7 @@ public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID ext
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
-    public BaseResult create(@RequestBody E model, Principal principal, HttpServletRequest request) {
+    public BaseResult create(E model, Principal principal, HttpServletRequest request) {
         if (!canCreate(principal)) {
             return null;
         }
@@ -63,7 +61,7 @@ public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID ext
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     @ResponseBody
-    public BaseResult update(@PathVariable("id") ID id, @RequestBody E model, Principal principal, HttpServletRequest request) {
+    public BaseResult update(@PathVariable("id") ID id, E model, Principal principal, HttpServletRequest request) {
         if (!canUpdate(principal)) {
             return null;
         }
@@ -83,7 +81,7 @@ public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID ext
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
     @ResponseBody
-    public BaseResult patch(@PathVariable("id") ID id, Principal principal, @RequestBody E modelData, HttpServletRequest request) {
+    public BaseResult patch(@PathVariable("id") ID id, Principal principal, E modelData, HttpServletRequest request) {
         if (!canPatch(principal)) {
             return null;
         }
