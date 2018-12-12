@@ -1,9 +1,6 @@
 package cn.kinkii.novice.framework.controller;
 
-import cn.kinkii.novice.framework.controller.exception.IllegalPermissionException;
-import cn.kinkii.novice.framework.controller.exception.InternalServiceException;
-import cn.kinkii.novice.framework.controller.exception.InvalidDataException;
-import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
+import cn.kinkii.novice.framework.controller.exception.*;
 import cn.kinkii.novice.framework.exception.BaseException;
 import cn.kinkii.novice.framework.service.exception.ServiceException;
 import org.slf4j.Logger;
@@ -40,6 +37,13 @@ public class BaseControllerHandler {
 
     @Autowired
     private MessageSource messageSource;
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResult handle(UserDefinedException ex) {
+        LOGGER.error("user defined error:" + ex.getMessage(), ex);
+        return buildResult(ex, GlobalMessage.ERROR_SERVICE);
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
