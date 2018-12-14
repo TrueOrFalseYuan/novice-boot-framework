@@ -94,22 +94,22 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
     }
 
     @Override
-    public void create(E model) {
-        this.saveAndFlush(model);
+    public E create(E model) {
+        return this.saveAndFlush(model);
     }
 
     @Override
-    public void update(E model) {
-        this.saveAndFlush(model);
+    public E update(E model) {
+        return this.saveAndFlush(model);
     }
 
     @Override
-    public void patch(E model) {
+    public E patch(E model) {
         E entity = this.findById(model.getId()).orElseThrow(() ->
                 new EmptyResultDataAccessException(String.format("No %s entity with id %s exists!", entityInformation.getJavaType(), model.getId()), 1)
         );
         KBeanUtils.copyPropertiesIgnoreNull(model, entity);
-        super.save(entity);
+        return super.save(entity);
     }
 
     private void logicalDelete(E entity) {
