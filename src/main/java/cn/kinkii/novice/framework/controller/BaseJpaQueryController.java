@@ -17,7 +17,7 @@ import java.util.List;
 
 @SuppressWarnings({"unchecked", "WeakerAccess"})
 @Valid
-public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID extends Serializable, Q extends JpaQuery<E>> extends BaseModelController<E, ID> {
+public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID extends Serializable, Q extends JpaQuery<E>> extends BaseModelQueryController<E, ID> {
 
     protected void handleQuery(Q query, Principal principal) {
     }
