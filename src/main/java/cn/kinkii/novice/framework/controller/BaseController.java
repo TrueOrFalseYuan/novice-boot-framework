@@ -6,7 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Locale;
 
 public abstract class BaseController {
@@ -19,7 +23,7 @@ public abstract class BaseController {
     public BaseController() {
         logger = LoggerFactory.getLogger(getClass());
     }
-    
+
     protected String getMessage(String messageCode) {
         return getMessage(messageCode, null);
     }
@@ -33,4 +37,11 @@ public abstract class BaseController {
         }
     }
 
+    protected List<MultipartFile> getUploadFiles(HttpServletRequest request, String name) {
+        if (request instanceof MultipartHttpServletRequest) {
+            List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles(name);
+            return files;
+        }
+        return null;
+    }
 }
