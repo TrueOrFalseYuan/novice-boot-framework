@@ -3,7 +3,10 @@ package cn.kinkii.novice.framework.controller;
 import cn.kinkii.novice.framework.controller.exception.InternalServiceException;
 import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
 import cn.kinkii.novice.framework.entity.Identifiable;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -46,7 +49,7 @@ public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID ext
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
-    public BaseResult create(E model, Principal principal, HttpServletRequest request) {
+    public BaseResult create(@Valid E model, Principal principal, HttpServletRequest request) {
         if (!canCreate(principal)) {
             return null;
         }
@@ -61,7 +64,7 @@ public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID ext
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     @ResponseBody
-    public BaseResult update(@PathVariable("id") ID id, E model, Principal principal, HttpServletRequest request) {
+    public BaseResult update(@PathVariable("id") ID id, @Valid E model, Principal principal, HttpServletRequest request) {
         if (!canUpdate(principal)) {
             return null;
         }
@@ -81,7 +84,7 @@ public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID ext
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
     @ResponseBody
-    public BaseResult patch(@PathVariable("id") ID id, Principal principal, E modelData, HttpServletRequest request) {
+    public BaseResult patch(@PathVariable("id") ID id, @Valid E modelData, Principal principal, HttpServletRequest request) {
         if (!canPatch(principal)) {
             return null;
         }
