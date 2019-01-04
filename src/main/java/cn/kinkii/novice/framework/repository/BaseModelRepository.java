@@ -36,6 +36,7 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
     }
 
     @Override
+    @Transactional
     public void delete(E entity) {
         if (!LogicalDeleteable.class.isAssignableFrom(getDomainClass())) {
             super.delete(entity);
@@ -45,6 +46,7 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
     }
 
     @Override
+    @Transactional
     public void deleteById(ID id) {
         if (!LogicalDeleteable.class.isAssignableFrom(getDomainClass())) {
             super.deleteById(id);
@@ -94,16 +96,19 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
     }
 
     @Override
+    @Transactional
     public E create(E model) {
         return this.saveAndFlush(model);
     }
 
     @Override
+    @Transactional
     public E update(E model) {
         return this.saveAndFlush(model);
     }
 
     @Override
+    @Transactional
     public E patch(E model) {
         E entity = this.findById(model.getId()).orElseThrow(() ->
                 new EmptyResultDataAccessException(String.format("No %s entity with id %s exists!", entityInformation.getJavaType(), model.getId()), 1)
