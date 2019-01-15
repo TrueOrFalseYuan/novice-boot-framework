@@ -27,6 +27,10 @@ public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID ex
         // Do nothing...
     }
 
+    protected void handleAfterGet(E model, Principal principal) {
+        // Do nothing...
+    }
+
     protected void handleQueryAll(Principal principal) {
         // Do nothing...
     }
@@ -36,7 +40,11 @@ public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID ex
     public E get(@PathVariable("id") ID id, Principal principal) {
         try {
             handleGet(id, principal);
-            return ((Optional<E>) invokeMethods("findById", new Class[]{Object.class}, Optional.class, id)).get();
+            E model = ((Optional<E>) invokeMethods("findById", new Class[]{Object.class}, Optional.class, id)).orElse(null);
+            if (model != null) {
+                handleAfterGet(model, principal);
+            }
+            return model;
         } catch (RuntimeException ignored) {
             throw new InternalServiceException(getMessage(GlobalMessage.ERROR_SERVICE.getMessageKey()));
         }
