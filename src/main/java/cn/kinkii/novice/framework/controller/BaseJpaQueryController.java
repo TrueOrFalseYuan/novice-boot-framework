@@ -33,6 +33,9 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     @ResponseBody
     protected Page<E> queryByPage(Q query, Pageable pageable, Principal principal) {
         handleQuery(query, principal);
+        if (pageable.getSort().iterator().hasNext()) {
+            query.setIsSortByAnnotation(false);
+        }
         return (Page<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class, Pageable.class}, Page.class, new Object[]{new JpaQuerySpecification(query), pageable});
     }
 }
