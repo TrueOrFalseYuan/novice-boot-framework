@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.io.Serializable;
 import java.security.Principal;
@@ -23,6 +24,7 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     }
 
     @RequestMapping(value = "/query", method = RequestMethod.POST)
+    @Transactional
     @ResponseBody
     protected List<E> query(Q query, Principal principal) {
         handleQuery(query, principal);
@@ -30,6 +32,7 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     }
 
     @RequestMapping(value = "/query/page", method = RequestMethod.POST)
+    @Transactional
     @ResponseBody
     protected Page<E> queryByPage(Q query, Pageable pageable, Principal principal) {
         handleQuery(query, principal);

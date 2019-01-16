@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.io.Serializable;
 import java.security.Principal;
@@ -36,6 +37,7 @@ public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID ex
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @Transactional
     @ResponseBody
     public E get(@PathVariable("id") ID id, Principal principal) {
         try {
@@ -52,6 +54,7 @@ public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID ex
     }
 
     @RequestMapping(value = "/all", method = RequestMethod.GET)
+    @Transactional
     @ResponseBody
     protected List<E> all(Principal principal) {
         if (!canQueryAll()) {
@@ -66,6 +69,7 @@ public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID ex
     }
 
     @RequestMapping(value = "/all/page", method = RequestMethod.GET)
+    @Transactional
     @ResponseBody
     protected Page<E> allByPage(Pageable pageable, Principal principal) {
         if (!canQueryAll()) {
