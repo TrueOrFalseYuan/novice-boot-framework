@@ -58,6 +58,26 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
 
     }
 
+    protected void handleAfterCreate(E model, Principal principal) {
+        // Do nothing...
+    }
+
+    protected void handleAfterUpdate(E model, Principal principal) {
+        // Do nothing...
+    }
+
+    protected void handleAfterPatch(E model, Principal principal) {
+        // Do nothing...
+    }
+    
+    protected void handleAfterDelete(ID id, Principal principal) {
+        // Do nothing...
+    }
+
+    protected void handleAfterBatchDelete(List<ID> ids, Principal principal) {
+        // Do nothing...
+    }
+
     protected abstract E toCreateModel(R modelRequest, Principal principal);
 
     protected abstract E toUpdateModel(R modelRequest, Principal principal);
@@ -75,6 +95,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         E newModel = toCreateModel(handledModelRequest, principal);
         try {
             invokeMethods("create", new Class[]{Identifiable.class}, null, newModel);
+            handleAfterCreate(newModel, principal);
             return BaseResult.success(getMessage(GlobalMessage.CREATE_SUCCESS.getMessageKey())).addValue("id", newModel.getId());
         } catch (RuntimeException ignored) {
             throw new InternalServiceException(getMessage(GlobalMessage.CREATE_FAILURE.getMessageKey()));
@@ -103,6 +124,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         updatingModel.setId(id);
         try {
             invokeMethods("update", new Class[]{Identifiable.class}, null, updatingModel);
+            handleAfterUpdate(updatingModel, principal);
             return BaseResult.success(getMessage(GlobalMessage.UPDATE_SUCCESS.getMessageKey()));
         } catch (Exception ignored) {
             throw new InternalServiceException(getMessage(GlobalMessage.UPDATE_FAILURE.getMessageKey()));
@@ -131,6 +153,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         patchModel.setId(id);
         try {
             invokeMethods("patch", new Class[]{Identifiable.class}, null, patchModel);
+            handleAfterPatch(patchModel, principal);
             return BaseResult.success(getMessage(GlobalMessage.UPDATE_SUCCESS.getMessageKey()));
         } catch (RuntimeException ignored) {
             throw new InternalServiceException(getMessage(GlobalMessage.UPDATE_FAILURE.getMessageKey()));
@@ -150,6 +173,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         handleDelete(id, principal, request);
         try {
             invokeMethods("deleteById", new Class[]{Object.class}, null, id);
+            handleAfterDelete(id, principal);
             return BaseResult.success(getMessage(GlobalMessage.DELETE_SUCCESS.getMessageKey()));
         } catch (RuntimeException ignored) {
             throw new InternalServiceException(getMessage(GlobalMessage.DELETE_FAILURE.getMessageKey()));
@@ -175,6 +199,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         if (!parsedIds.isEmpty()) {
             try {
                 invokeMethods("deleteInBatchById", new Class[]{Iterable.class}, null, parsedIds);
+                handleAfterBatchDelete(parsedIds, principal);
                 return BaseResult.success(getMessage(GlobalMessage.BATCHDELETE_SUCCESS.getMessageKey()));
             } catch (RuntimeException ignored) {
                 throw new InternalServiceException(getMessage(GlobalMessage.BATCHDELETE_FAILURE.getMessageKey()));
