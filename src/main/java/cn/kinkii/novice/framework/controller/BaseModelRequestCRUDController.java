@@ -81,6 +81,13 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         }
     }
 
+    @RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
+    @ResponseBody
+    @Transactional
+    public BaseResult updateWithPost(@PathVariable("id") ID id, @Valid R modelRequest, Principal principal, HttpServletRequest request) {
+        return update(id, modelRequest, principal, request);
+    }
+
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     @ResponseBody
     @Transactional
@@ -100,6 +107,13 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         } catch (Exception ignored) {
             throw new InternalServiceException(getMessage(GlobalMessage.UPDATE_FAILURE.getMessageKey()));
         }
+    }
+
+    @RequestMapping(value = "/{id}/patch", method = RequestMethod.POST)
+    @ResponseBody
+    @Transactional
+    public BaseResult patchWithPost(@PathVariable("id") ID id, @Valid R modelRequest, Principal principal, HttpServletRequest request) {
+        return patch(id, modelRequest, principal, request);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
