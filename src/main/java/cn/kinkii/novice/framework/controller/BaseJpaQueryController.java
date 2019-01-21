@@ -23,7 +23,7 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     protected void handleQuery(Q query, Principal principal) {
     }
 
-    @RequestMapping(value = "/query", method = RequestMethod.POST)
+    @RequestMapping(value = "/query", method = {RequestMethod.POST, RequestMethod.GET})
     @Transactional
     @ResponseBody
     protected List<E> query(Q query, Principal principal) {
@@ -31,7 +31,7 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
         return (List<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class}, List.class, new JpaQuerySpecification(query));
     }
 
-    @RequestMapping(value = "/query/page", method = RequestMethod.POST)
+    @RequestMapping(value = "/query/page", method = {RequestMethod.POST, RequestMethod.GET})
     @Transactional
     @ResponseBody
     protected Page<E> queryByPage(Q query, Pageable pageable, Principal principal) {
