@@ -4,12 +4,12 @@ import cn.kinkii.novice.framework.controller.query.annotations.OrderProperty;
 import cn.kinkii.novice.framework.controller.query.annotations.QueryClass;
 import cn.kinkii.novice.framework.utils.KReflectionUtils;
 import org.springframework.data.util.ReflectionUtils;
-import org.springframework.util.ConcurrentReferenceHashMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public abstract class BaseQuerySpecification<T extends BaseQuery> {
@@ -20,7 +20,7 @@ public abstract class BaseQuerySpecification<T extends BaseQuery> {
         this.query = query;
     }
 
-    private static Map<Class<?>, List<OrderProperty>> orderCache = new ConcurrentReferenceHashMap<>();
+    private static Map<Class<?>, List<OrderProperty>> orderCache = new ConcurrentHashMap<>();
 
     protected Junction getClassJunction() {
         Junction result;
