@@ -1,11 +1,11 @@
 package cn.kinkii.novice.framework.controller;
 
-import cn.kinkii.novice.framework.controller.exception.IllegalPermissionException;
-import cn.kinkii.novice.framework.controller.exception.InternalServiceException;
-import cn.kinkii.novice.framework.controller.exception.InvalidDataException;
-import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
+import cn.kinkii.novice.framework.controller.exception.*;
 import cn.kinkii.novice.framework.exception.BaseException;
 import cn.kinkii.novice.framework.service.exception.ServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.TypeMismatchException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -16,7 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -32,59 +34,71 @@ public class BaseControllerHandler {
 
 
     private static final String EXCEPTION_DETAIL = "detail";
+    private static final String EXCEPTION_RESPONSE_PREFIX = "defined.response.";
 
     @Autowired
     private MessageSource messageSource;
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(InternalServiceException exception) {
-        log.error("internal error:" + exception.getMessage(), exception);
-        return buildResult(exception, GlobalMessage.ERROR_SERVICE);
+    public BaseResult handle(UserDefinedException ex) {
+        LOGGER.debug("user defined error:" + ex.getMessage(), ex);
+        if (StringUtils.hasText(ex.getMessage())) {
+            return BaseResult.failure(ex.getCode(), ex.getMessage());
+        } else {
+            return buildResult(ex.getCode(), ex, EXCEPTION_RESPONSE_PREFIX + ex.getCode(), GlobalMessage.ERROR_SERVICE.getMessageKey());
+        }
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(InvalidParamException exception) {
-        log.error("invalid params error:" + exception.getMessage(), exception);
-        return buildResult(exception, GlobalMessage.ERROR_PARAMETER);
+    public BaseResult handle(InternalServiceException ex) {
+        LOGGER.error("internal error:" + ex.getMessage(), ex);
+        return buildResult(ex, GlobalMessage.ERROR_SERVICE);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(InvalidDataException exception) {
-        log.error("invalid data error:" + exception.getMessage(), exception);
-        return buildResult(exception, GlobalMessage.ERROR_DATA);
+    public BaseResult handle(InvalidParamException ex) {
+        LOGGER.debug("invalid params error:" + ex.getMessage(), ex);
+        return buildResult(ex, GlobalMessage.ERROR_PARAMETER);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(IllegalPermissionException exception) {
-        log.error("illegal permission error:" + exception.getMessage(), exception);
-        return buildResult(exception, GlobalMessage.ERROR_PERMISSION);
+    public BaseResult handle(InvalidDataException ex) {
+        LOGGER.debug("invalid data error:" + ex.getMessage(), ex);
+        return buildResult(ex, GlobalMessage.ERROR_DATA);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResult handle(IllegalPermissionException ex) {
+        LOGGER.debug("illegal permission error:" + ex.getMessage(), ex);
+        return buildResult(ex, GlobalMessage.ERROR_PERMISSION);
     }
 
     @ExceptionHandler
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(ServiceException exception) {
-        log.error("checked service error:" + exception.getMessage(), exception);
-        return buildResult(exception, GlobalMessage.ERROR_SERVICE);
+    public BaseResult handle(ServiceException ex) {
+        LOGGER.debug("checked service error:" + ex.getMessage(), ex);
+        return buildResult(ex.getCode(), ex, EXCEPTION_RESPONSE_PREFIX + ex.getCode(), GlobalMessage.ERROR_SERVICE.getMessageKey());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(DataAccessException exception) {
-        log.error("data access error:" + exception.getMessage(), exception);
-        return BaseResult.failure(GlobalExceptionCode.DATA_ACCESS_EXCEPTION_CODE, GlobalMessage.ERROR_DATA.getMessageKey());
+    public BaseResult handle(DataAccessException ex) {
+        LOGGER.error("data access error:" + ex.getMessage(), ex);
+        return buildResult(GlobalExceptionCode.INVALID_DATA_EXCEPTION_CODE, ex, GlobalMessage.ERROR_DATA);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(ConstraintViolationException exception) {
-        log.error("constraint violation error:" + exception.getMessage(), exception);
-        BaseResult baseResult = BaseResult.failure(GlobalExceptionCode.DATA_ACCESS_EXCEPTION_CODE, GlobalMessage.ERROR_DATA.getMessageKey());
-        exception.getConstraintViolations().forEach(constraintViolation -> {
+    public BaseResult handle(ConstraintViolationException ex) {
+        LOGGER.error("constraint violation error:" + ex.getMessage(), ex);
+        BaseResult baseResult = buildResult(GlobalExceptionCode.INVALID_DATA_EXCEPTION_CODE, ex, GlobalMessage.ERROR_DATA);
+        ex.getConstraintViolations().forEach(constraintViolation -> {
             baseResult.addValue(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage());
         });
         return baseResult;
@@ -92,10 +106,10 @@ public class BaseControllerHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(MethodArgumentNotValidException exception) {
-        log.error("method args not valid error:" + exception.getMessage(), exception);
-        BaseResult baseResult = BaseResult.failure(GlobalExceptionCode.DATA_ACCESS_EXCEPTION_CODE, GlobalMessage.ERROR_DATA.getMessageKey());
-        exception.getBindingResult().getFieldErrors().forEach(fieldError -> {
+    public BaseResult handle(BindException ex) {
+        LOGGER.debug("invalid params error:" + ex.getMessage(), ex);
+        BaseResult baseResult = buildResult(GlobalExceptionCode.INVALID_PARAM_EXCEPTION_CODE, ex, GlobalMessage.ERROR_PARAMETER);
+        ex.getBindingResult().getFieldErrors().forEach(fieldError -> {
             baseResult.addValue(fieldError.getField(), fieldError.getDefaultMessage());
         });
         return baseResult;
@@ -103,39 +117,74 @@ public class BaseControllerHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(HttpMessageNotReadableException exception) {
-        log.error("http message not readable error:" + exception.getMessage(), exception);
-        return buildResult(GlobalExceptionCode.HTTP_MESSAGE_NOT_READABLE_CODE, exception, GlobalMessage.ERROR_DATA);
+    public BaseResult handle(MethodArgumentNotValidException ex) {
+        LOGGER.debug("method args not valid error:" + ex.getMessage(), ex);
+        BaseResult baseResult = buildResult(GlobalExceptionCode.INVALID_PARAM_EXCEPTION_CODE, ex, GlobalMessage.ERROR_PARAMETER);
+        ex.getBindingResult().getFieldErrors().forEach(fieldError -> {
+            baseResult.addValue(fieldError.getField(), fieldError.getDefaultMessage());
+        });
+        return baseResult;
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResult handle(MissingServletRequestParameterException ex) {
+        LOGGER.debug("missing request parameter mismatch:" + ex.getMessage(), ex);
+        return buildResult(GlobalExceptionCode.INVALID_PARAM_EXCEPTION_CODE, ex, GlobalMessage.ERROR_PARAMETER);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResult handle(HttpMessageNotReadableException ex) {
+        LOGGER.debug("http message not readable:" + ex.getMessage(), ex);
+        return buildResult(GlobalExceptionCode.BAD_REQUEST_EXCEPTION_CODE, ex, GlobalMessage.ERROR_REQUEST);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResult handle(TypeMismatchException ex) {
+        LOGGER.debug("type mismatch:" + ex.getMessage(), ex);
+        return buildResult(GlobalExceptionCode.BAD_REQUEST_EXCEPTION_CODE, ex, GlobalMessage.ERROR_REQUEST);
+    }
 
     private String getMessage(String messageCode) {
         return getMessage(messageCode, null);
     }
 
-    private String getMessage(String messageCode, Object[] params) {
+    private String getMessage(String messageCode, String defaultMessageCode) {
+        //set use-code-as-default-message to false
         Locale currentLocal = LocaleContextHolder.getLocale();
+        String message = null;
         try {
-            return messageSource.getMessage(messageCode, params, currentLocal);
-        } catch (NoSuchMessageException e) {
-            return messageCode;
+            message = messageSource.getMessage(messageCode, null, currentLocal);
+        } catch (NoSuchMessageException ignored) {
         }
+        if (message == null && defaultMessageCode != null) {
+            try {
+                message = messageSource.getMessage(defaultMessageCode, null, currentLocal);
+            } catch (NoSuchMessageException ignored) {
+            }
+        }
+        if (message == null) {
+            message = messageCode;
+        }
+        return message;
     }
 
-    private BaseResult buildResult(BaseException e, GlobalMessage message) {
+
+    private BaseResult buildResult(BaseException cause, GlobalMessage message) {
+        return buildResult(cause.getCode(), cause, message);
+    }
+
+    private BaseResult buildResult(Integer code, Exception cause, GlobalMessage message) {
+        return buildResult(code, cause, message.getMessageKey(), null);
+    }
+
+    private BaseResult buildResult(Integer code, Exception e, String messageKey, String defaultMessageKey) {
         if (StringUtils.hasText(e.getMessage())) {
-            return BaseResult.failure(e.getCode(), getMessage(message.getMessageKey())).addValue(EXCEPTION_DETAIL, e.getMessage());
+            return BaseResult.failure(code, getMessage(messageKey, defaultMessageKey)).addValue(EXCEPTION_DETAIL, e.getMessage());
         } else {
-            return BaseResult.failure(e.getCode(), getMessage(message.getMessageKey()));
+            return BaseResult.failure(code, getMessage(messageKey, defaultMessageKey));
         }
     }
-
-    private BaseResult buildResult(Integer code, Exception e, GlobalMessage message) {
-        if (StringUtils.hasText(e.getMessage())) {
-            return BaseResult.failure(code, getMessage(message.getMessageKey())).addValue(EXCEPTION_DETAIL, e.getMessage());
-        } else {
-            return BaseResult.failure(code, getMessage(message.getMessageKey()));
-        }
-    }
-
 }

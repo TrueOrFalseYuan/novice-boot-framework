@@ -1,14 +1,16 @@
 package cn.kinkii.novice.framework.controller;
 
-import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Locale;
 
 public abstract class BaseController {
@@ -21,35 +23,6 @@ public abstract class BaseController {
     public BaseController() {
         logger = LoggerFactory.getLogger(getClass());
     }
-
-    /**
-     * 非空属性检查
-     *
-     * @param values 字段值
-     * @throws InvalidParamException
-     */
-    protected void checkNotBlank(String... values) throws InvalidParamException {
-        for (String value : values) {
-            if (StringUtils.isBlank(value)) {
-                throw new InvalidParamException(getMessage(GlobalMessage.ERROR_PARAMETER.getMessageKey()));
-            }
-        }
-    }
-
-    /**
-     * 非空属性检查
-     *
-     * @param values 字段值
-     * @throws InvalidParamException
-     */
-    protected void checkNotNull(Object... values) throws InvalidParamException {
-        for (Object value : values) {
-            if (value == null) {
-                throw new InvalidParamException(getMessage(GlobalMessage.ERROR_PARAMETER.getMessageKey()));
-            }
-        }
-    }
-
 
     protected String getMessage(String messageCode) {
         return getMessage(messageCode, null);
@@ -64,4 +37,11 @@ public abstract class BaseController {
         }
     }
 
+    protected List<MultipartFile> getUploadFiles(HttpServletRequest request, String name) {
+        if (request instanceof MultipartHttpServletRequest) {
+            List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles(name);
+            return files;
+        }
+        return null;
+    }
 }

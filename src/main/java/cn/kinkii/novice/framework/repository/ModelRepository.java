@@ -13,13 +13,11 @@ import java.io.Serializable;
 @Transactional
 public interface ModelRepository<E extends Identifiable<ID>, ID extends Serializable> extends JpaRepository<E, ID>, JpaSpecificationExecutor<E>, QuerydslPredicateExecutor<E> {
 
-    void create(E model);
+    E create(E model);
 
-    void update(E model);
+    E update(E model);
 
-    void patch(E model);
-
-    void deleteById(ID id);
+    E patch(E model);
 
     void deleteInBatchById(Iterable<ID> id);
 }

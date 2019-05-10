@@ -1,5 +1,6 @@
 package cn.kinkii.novice.framework.controller;
 
+
 import lombok.Getter;
 
 public enum GlobalMessage {
@@ -8,6 +9,7 @@ public enum GlobalMessage {
     FAILURE("global.failure"),
     FAILURE_NOT_EXISTED("global.failure.notexisted"),
 
+    ERROR_REQUEST("global.error.request"),
     ERROR_DATA("global.error.data"),
     ERROR_SERVICE("global.error.service"),
     ERROR_PARAMETER("global.error.parameter"),
@@ -36,4 +38,5 @@ public enum GlobalMessage {
     GlobalMessage(String messageKey) {
         this.messageKey = messageKey;
     }
+
 }

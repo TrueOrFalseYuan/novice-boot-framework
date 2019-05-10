@@ -27,46 +27,38 @@ public abstract class BaseModelController<E extends Identifiable<ID>, ID extends
         return null;
     }
 
-    private Method respondsTo(Class clazz, String method, Class[] pTypes) {
-        return KReflectionUtils.findActualMethod(clazz, method, pTypes);
+    private Method respondsTo(Class clazz, String method, Class[] pTypes, Class<?> returnType) {
+        return KReflectionUtils.findActualMethod(clazz, method, pTypes, returnType);
     }
 
-    protected Object invokeRepositoryMethods(String methodName, Class[] pTypes, Object... params) {
-        ModelRepository repository = getRepository();
-        if (repository != null) {
-            Method method = respondsTo(repository.getClass(), methodName, pTypes);
+    protected Object invoke(Object target, String methodName, Class[] pTypes, Class<?> returnType, Object... params) {
+        if (target != null) {
+            Method method = respondsTo(target.getClass(), methodName, pTypes, returnType);
             if (method != null) {
-                return KReflectionUtils.invokeMethod(method, repository, params);
+                return KReflectionUtils.invokeMethod(method, target, params);
             }
         }
-        throw new IllegalArgumentException("Unknown repository method!");
+        throw new IllegalArgumentException("Unknown method!");
     }
 
-    protected Object invokeServiceMethods(String methodName, Class[] pTypes, Object... params) {
-        ModelService service = getService();
-        if (service != null) {
-            Method method = respondsTo(service.getClass(), methodName, pTypes);
-            if (method != null) {
-                return KReflectionUtils.invokeMethod(method, service, params);
-            }
+    protected Object invokeMethods(String methodName, Class[] pTypes, Class<?> returnType, Object... params) {
+        try {
+            return invoke(getService(), methodName, pTypes, returnType, params);
+        } catch (IllegalArgumentException e) {
+            return invoke(getRepository(), methodName, pTypes, returnType, params);
         }
-        throw new IllegalArgumentException("Unknown service method!");
     }
 
     protected Object invokeMethods(String methodName, Class[] pTypes, Object... params) {
         try {
-            return invokeServiceMethods(methodName, pTypes, params);
+            return invoke(getService(), methodName, pTypes, null, params);
         } catch (IllegalArgumentException e) {
-            return invokeRepositoryMethods(methodName, pTypes, params);
+            return invoke(getRepository(), methodName, pTypes, null, params);
         }
     }
 
     protected Object invokeMethods(String methodName, Object... params) {
-        return invokeMethods(methodName, null, params);
-    }
-
-    protected Object invokeMethods(String methodName) {
-        return invokeMethods(methodName, (Object) null);
+        return invokeMethods(methodName, new Class[]{}, null, params);
     }
 
     protected List<ID> parseIdString(String ids) {
@@ -78,12 +70,12 @@ public abstract class BaseModelController<E extends Identifiable<ID>, ID extends
             }
             if (Number.class.isAssignableFrom(idClazz)) {
                 strIds.forEach(strId -> {
-                        try {
-                            parsedIds.add((ID) NumberUtils.parseNumber((String) strId, idClazz));
-                        } catch (Exception e) {
-                            throw new IllegalArgumentException("Parsing id value(${strId}) failed! ");
+                            try {
+                                parsedIds.add((ID) NumberUtils.parseNumber((String) strId, idClazz));
+                            } catch (Exception e) {
+                                throw new IllegalArgumentException("Parsing id value(${strId}) failed! ");
+                            }
                         }
-                    }
                 );
             } else if (idClazz == String.class) {
                 parsedIds.addAll(strIds);

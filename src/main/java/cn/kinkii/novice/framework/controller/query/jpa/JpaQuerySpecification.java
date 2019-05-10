@@ -57,7 +57,9 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
             result = criteriaBuilder.and(allPredicates.toArray(new Predicate[0]));
         } else if (Junction.OR.equals(classJunction)) {
             groupPredicates.keySet().forEach(s -> allPredicates.add(criteriaBuilder.and(groupPredicates.get(s).toArray(new Predicate[0]))));
-            result = criteriaBuilder.or(allPredicates.toArray(new Predicate[0]));
+            if (allPredicates.size() > 0) {
+                result = criteriaBuilder.or(allPredicates.toArray(new Predicate[0]));
+            }
         }
 
         if (query.getIsSortByAnnotation()) {
