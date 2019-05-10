@@ -26,7 +26,7 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
         super(query);
     }
 
-    private static Map<Class<?>, Map<String, Path>> pathCache = new ConcurrentReferenceHashMap<>();
+//    private static Map<Class<?>, Map<String, Path>> pathCache = new ConcurrentReferenceHashMap<>();
 
     @Override
     public Predicate toPredicate(Root<T> entityRoot, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -117,13 +117,13 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
 
     private Path getPath(String columnName, Root<T> entityRoot, JoinType joinType) {
         EntityType<T> entityType = entityRoot.getModel();
-        Map<String, Path> pathMap = pathCache.get(query.getClass());
+//        Map<String, Path> pathMap = pathCache.get(query.getClass());
         Path path;
-        if (pathMap == null) {
-            pathMap = new HashMap<>();
-            pathCache.put(query.getClass(), pathMap);
-        }
-        if (pathMap.get(columnName) == null) {
+//        if (pathMap == null) {
+//            pathMap = new HashMap<>();
+//            pathCache.put(query.getClass(), pathMap);
+//        }
+//        if (pathMap.get(columnName) == null) {
             if (columnName.indexOf(".") > 0) { // 带Join查询
                 String[] columns = columnName.split("\\.");
                 From from = entityRoot;
@@ -138,8 +138,9 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
             } else {
                 path = entityRoot.get(entityType.getSingularAttribute(columnName));
             }
-            pathMap.put(columnName, path);
-        }
-        return pathMap.get(columnName);
+//            pathMap.put(columnName, path);
+////        }
+        return path;
+//        return pathMap.get(columnName);
     }
 }
