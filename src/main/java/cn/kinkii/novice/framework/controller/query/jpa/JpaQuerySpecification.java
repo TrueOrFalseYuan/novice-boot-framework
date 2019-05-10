@@ -1,16 +1,14 @@
 package cn.kinkii.novice.framework.controller.query.jpa;
 
 
-import cn.kinkii.novice.framework.controller.query.BaseQuerySpecification;
 import cn.kinkii.novice.framework.controller.query.Expression;
 import cn.kinkii.novice.framework.controller.query.Join;
-import cn.kinkii.novice.framework.controller.query.Junction;
 import cn.kinkii.novice.framework.controller.query.Order;
+import cn.kinkii.novice.framework.controller.query.*;
 import cn.kinkii.novice.framework.controller.query.annotations.QueryProperty;
 import cn.kinkii.novice.framework.entity.Identifiable;
 import cn.kinkii.novice.framework.utils.KReflectionUtils;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.*;
@@ -25,8 +23,6 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
     public JpaQuerySpecification(JpaQuery<T> query) {
         super(query);
     }
-
-//    private static Map<Class<?>, Map<String, Path>> pathCache = new ConcurrentReferenceHashMap<>();
 
     @Override
     public Predicate toPredicate(Root<T> entityRoot, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -117,30 +113,21 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
 
     private Path getPath(String columnName, Root<T> entityRoot, JoinType joinType) {
         EntityType<T> entityType = entityRoot.getModel();
-//        Map<String, Path> pathMap = pathCache.get(query.getClass());
         Path path;
-//        if (pathMap == null) {
-//            pathMap = new HashMap<>();
-//            pathCache.put(query.getClass(), pathMap);
-//        }
-//        if (pathMap.get(columnName) == null) {
-            if (columnName.indexOf(".") > 0) { // 带Join查询
-                String[] columns = columnName.split("\\.");
-                From from = entityRoot;
-                for (int i = 0; i < columns.length - 1; i++) {// 不包含最后一位
-                    if (joinType == null) {
-                        from = from.join(columns[i]);
-                    } else {
-                        from = from.join(columns[i], joinType);
-                    }
+        if (columnName.indexOf(".") > 0) { // 带Join查询
+            String[] columns = columnName.split("\\.");
+            From from = entityRoot;
+            for (int i = 0; i < columns.length - 1; i++) {// 不包含最后一位
+                if (joinType == null) {
+                    from = from.join(columns[i]);
+                } else {
+                    from = from.join(columns[i], joinType);
                 }
-                path = from.get(columns[columns.length - 1]);
-            } else {
-                path = entityRoot.get(entityType.getSingularAttribute(columnName));
             }
-//            pathMap.put(columnName, path);
-////        }
+            path = from.get(columns[columns.length - 1]);
+        } else {
+            path = entityRoot.get(entityType.getSingularAttribute(columnName));
+        }
         return path;
-//        return pathMap.get(columnName);
     }
 }
