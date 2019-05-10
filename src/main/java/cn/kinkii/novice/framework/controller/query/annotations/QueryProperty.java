@@ -1,6 +1,7 @@
 package cn.kinkii.novice.framework.controller.query.annotations;
 
 import cn.kinkii.novice.framework.controller.query.Expression;
+import cn.kinkii.novice.framework.controller.query.Join;
 import cn.kinkii.novice.framework.controller.query.Match;
 
 import java.lang.annotation.ElementType;
@@ -27,7 +28,6 @@ public @interface QueryProperty {
     Expression expression() default Expression.EQ;
 
 
-
     Match match() default Match.ANYWHERE;
 
     /**
@@ -36,5 +36,7 @@ public @interface QueryProperty {
      * @return
      */
     String group() default "";
+
+    Join join() default Join.DEFAULT;
 
 }
