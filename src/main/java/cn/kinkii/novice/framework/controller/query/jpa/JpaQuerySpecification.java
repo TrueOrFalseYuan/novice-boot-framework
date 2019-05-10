@@ -3,6 +3,7 @@ package cn.kinkii.novice.framework.controller.query.jpa;
 
 import cn.kinkii.novice.framework.controller.query.BaseQuerySpecification;
 import cn.kinkii.novice.framework.controller.query.Expression;
+import cn.kinkii.novice.framework.controller.query.Join;
 import cn.kinkii.novice.framework.controller.query.Junction;
 import cn.kinkii.novice.framework.controller.query.Order;
 import cn.kinkii.novice.framework.controller.query.annotations.QueryProperty;
@@ -25,23 +26,10 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
         super(query);
     }
 
-    private static Map<Root, Map<String, Path>> pathCache = new ConcurrentReferenceHashMap<>();
+    private static Map<Class<?>, Map<String, Path>> pathCache = new ConcurrentReferenceHashMap<>();
 
     @Override
     public Predicate toPredicate(Root<T> entityRoot, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-        if (query.getIsSortByAnnotation()) {
-            List<Order> queryOrders = getClassOrders();
-            if (queryOrders.size() != 0) {
-                queryOrders.forEach(order -> {
-                    if (order.getDirection().isDescending()) {
-                        criteriaQuery.orderBy(criteriaBuilder.desc(getPath(order.getColumn(), entityRoot)));
-                    } else {
-                        criteriaQuery.orderBy(criteriaBuilder.asc(getPath(order.getColumn(), entityRoot)));
-                    }
-                });
-            }
-        }
-
         List<Predicate> allPredicates = new ArrayList<>();
         Map<String, List<Predicate>> groupPredicates = new HashMap<>();
 
@@ -74,11 +62,29 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
             }
         }
 
+        if (query.getIsSortByAnnotation()) {
+            List<Order> queryOrders = getClassOrders();
+            if (queryOrders.size() != 0) {
+                queryOrders.forEach(order -> {
+                    if (order.getDirection().isDescending()) {
+                        criteriaQuery.orderBy(criteriaBuilder.desc(getPath(order.getColumn(), entityRoot)));
+                    } else {
+                        criteriaQuery.orderBy(criteriaBuilder.asc(getPath(order.getColumn(), entityRoot)));
+                    }
+                });
+            }
+        }
+
         return result;
     }
 
     private Predicate buildPredicate(CriteriaBuilder criteriaBuilder, Root<T> entityRoot, QueryProperty queryProperty, Object value) {
-        return JpaExpressions.by(queryProperty.expression()).build(criteriaBuilder, getPath(queryProperty.column(), entityRoot), getValue(queryProperty, value));
+        return JpaExpressions.by(queryProperty.expression())
+                .build(
+                        criteriaBuilder,
+                        getPath(queryProperty.column(), entityRoot, getJoinType(queryProperty.join())),
+                        getValue(queryProperty, value)
+                );
     }
 
     private Object getValue(QueryProperty queryProperty, Object value) {
@@ -92,20 +98,41 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
         return value;
     }
 
+    private JoinType getJoinType(Join join) {
+        if (Join.DEFAULT.equals(join)) {
+            return null;
+        } else if (Join.JPA_INNER.equals(join)) {
+            return JoinType.INNER;
+        } else if (Join.JPA_LEFT.equals(join)) {
+            return JoinType.LEFT;
+        } else if (Join.JPA_RIGHT.equals(join)) {
+            return JoinType.RIGHT;
+        }
+        throw new IllegalStateException("Unsupported join type in jpa query! - " + join.name());
+    }
+
     private Path getPath(String columnName, Root<T> entityRoot) {
+        return getPath(columnName, entityRoot, null);
+    }
+
+    private Path getPath(String columnName, Root<T> entityRoot, JoinType joinType) {
         EntityType<T> entityType = entityRoot.getModel();
-        Map<String, Path> pathMap = pathCache.get(entityRoot);
+        Map<String, Path> pathMap = pathCache.get(query.getClass());
         Path path;
         if (pathMap == null) {
             pathMap = new HashMap<>();
-            pathCache.put(entityRoot, pathMap);
+            pathCache.put(query.getClass(), pathMap);
         }
         if (pathMap.get(columnName) == null) {
             if (columnName.indexOf(".") > 0) { // 带Join查询
                 String[] columns = columnName.split("\\.");
                 From from = entityRoot;
                 for (int i = 0; i < columns.length - 1; i++) {// 不包含最后一位
-                    from = from.join(columns[i]);
+                    if (joinType == null) {
+                        from = from.join(columns[i]);
+                    } else {
+                        from = from.join(columns[i], joinType);
+                    }
                 }
                 path = from.get(columns[columns.length - 1]);
             } else {

@@ -7,11 +7,11 @@ import java.util.List;
 
 public abstract class Expressions {
 
-    public static  <T> List<T> handleIterableValue(T value) {
+    public static <T> List<T> handleIterableValue(T value) {
         List<T> results = new ArrayList<>();
         if (value.getClass().isArray()) {
             results.addAll(Arrays.asList(((T[]) value)));
-        } else if (Collection.class.isInstance(value)) {
+        } else if (value instanceof Collection) {
             results.addAll((Collection<T>) value);
         } else {
             results.add(value);
@@ -20,10 +20,7 @@ public abstract class Expressions {
     }
 
     public static boolean isIterableValue(Object value) {
-        return value.getClass().isArray() || Collection.class.isInstance(value);
+        return value.getClass().isArray() || value instanceof Collection;
     }
 
-    public static boolean isExpressionSupportIterableValue(Expression expression) {
-        return expression.equals(Expression.IN) || expression.equals(Expression.NOT_IN);
-    }
 }
