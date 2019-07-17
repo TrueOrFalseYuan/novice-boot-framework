@@ -1,4 +1,4 @@
-package cn.kinkii.novice.framework.aop;
+package cn.kinkii.novice.framework.controller.interceptor;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface NoRepeatSubmit {
+public @interface NoDuplicateRequest {
 
     int lockTime() default 10;
+
 }
