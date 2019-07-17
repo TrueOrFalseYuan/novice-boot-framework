@@ -9,6 +9,8 @@ import java.util.Map;
 @Data(staticConstructor = "build")
 public class BaseResult {
 
+    private static final String DETAIL = "detail";
+
     @NonNull
     private Integer code;
 
@@ -31,6 +33,10 @@ public class BaseResult {
         values.put(key, value);
 
         return this;
+    }
+
+    public BaseResult addDetail(Object value) {
+        return addValue(DETAIL, value);
     }
 
 }
