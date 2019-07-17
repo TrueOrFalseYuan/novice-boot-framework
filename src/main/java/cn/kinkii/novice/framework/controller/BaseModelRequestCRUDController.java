@@ -1,5 +1,6 @@
 package cn.kinkii.novice.framework.controller;
 
+import cn.kinkii.novice.framework.aop.NoRepeatSubmit;
 import cn.kinkii.novice.framework.controller.exception.InternalServiceException;
 import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
 import cn.kinkii.novice.framework.entity.Identifiable;
@@ -69,7 +70,6 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
     protected void handleAfterPatch(E model, Principal principal) {
         // Do nothing...
     }
-    
     protected void handleAfterDelete(ID id, Principal principal) {
         // Do nothing...
     }
@@ -87,6 +87,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
     @Transactional
+    @NoRepeatSubmit
     public BaseResult create(@Valid R modelRequest, Principal principal, HttpServletRequest request) {
         if (!canCreate(principal)) {
             return null;
@@ -105,6 +106,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
     @RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
     @ResponseBody
     @Transactional
+    @NoRepeatSubmit
     public BaseResult updateWithPost(@PathVariable("id") ID id, @Valid R modelRequest, Principal principal, HttpServletRequest request) {
         return update(id, modelRequest, principal, request);
     }
@@ -112,6 +114,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     @ResponseBody
     @Transactional
+    @NoRepeatSubmit
     public BaseResult update(@PathVariable("id") ID id, @Valid R modelRequest, Principal principal, HttpServletRequest request) {
         if (!canUpdate(principal)) {
             return null;
@@ -134,6 +137,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
     @RequestMapping(value = "/{id}/patch", method = RequestMethod.POST)
     @ResponseBody
     @Transactional
+    @NoRepeatSubmit
     public BaseResult patchWithPost(@PathVariable("id") ID id, @Valid R modelRequest, Principal principal, HttpServletRequest request) {
         return patch(id, modelRequest, principal, request);
     }
@@ -141,6 +145,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
     @ResponseBody
     @Transactional
+    @NoRepeatSubmit
     public BaseResult patch(@PathVariable("id") ID id, @Valid R modelRequest, Principal principal, HttpServletRequest request) {
         if (!canPatch(principal)) {
             return null;
@@ -163,6 +168,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseBody
     @Transactional
+    @NoRepeatSubmit
     public BaseResult delete(@PathVariable ID id, Principal principal, HttpServletRequest request) {
         if (!canDelete(principal)) {
             return null;
@@ -184,6 +190,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
     @RequestMapping(value = "/batchdelete", method = RequestMethod.DELETE)
     @ResponseBody
     @Transactional
+    @NoRepeatSubmit
     public BaseResult batchDelete(String ids, Principal principal, HttpServletRequest request) {
         if (!canBatchDelete(principal)) {
             return null;
