@@ -9,17 +9,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public abstract class GenericResponse<T> extends AnnotatedResponse {
 
-  public GenericResponse<T> from(T original) {
+  public void from(T original) {
     super.from(original);
-    return this;
   }
 
-  private Integer errorCode;
-
-  private String errorMessage;
-
-  public GenericResponse(Integer code, String message) {
-    this.errorCode = code;
-    this.errorMessage = message;
-  }
 }

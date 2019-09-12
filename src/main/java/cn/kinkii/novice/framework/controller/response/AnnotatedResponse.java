@@ -19,7 +19,7 @@ public abstract class AnnotatedResponse {
   // response class,source class, response field, source get method
   private static final Map<Class<?>, Map<Class<?>, Map<Field, Method>>> methodMapperCache = new ConcurrentReferenceHashMap<>();
 
-  protected Class<?> responseClass;
+  private Class<?> responseClass;
 
   public AnnotatedResponse() {
     responseClass = getClass();
@@ -45,7 +45,7 @@ public abstract class AnnotatedResponse {
     return mapper;
   }
 
-  protected static Map<Field, Method> buildMethodMapper(Class<?> responseClass, Class<?> sourceClass) {
+  private static Map<Field, Method> buildMethodMapper(Class<?> responseClass, Class<?> sourceClass) {
     Map<Field, Method> mapper = new HashMap<>();
     KReflectionUtils.doWithFields(responseClass, respField -> {
       ResponseProperty respProp = respField.getAnnotation(ResponseProperty.class);
@@ -105,5 +105,4 @@ public abstract class AnnotatedResponse {
       }
     }
   }
-
 }
