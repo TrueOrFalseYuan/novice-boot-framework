@@ -6,9 +6,18 @@ public abstract class GenericRequest<T> extends AnnotatedRequest {
 
   private Class<T> targetClass;
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "CastCanBeRemovedNarrowingVariableType"})
   public GenericRequest() {
-    this.targetClass = KGenericsUtils.getSuperclassGenericType(getClass());
+    Class<?> requestClass = getClass();
+    Class<?> valueClass = KGenericsUtils.getSuperclassGenericType(requestClass);
+    while(valueClass == null && requestClass.getSuperclass() != Object.class) {
+      requestClass = requestClass.getSuperclass();
+      valueClass = KGenericsUtils.getSuperclassGenericType(requestClass);
+    }
+    if(valueClass == null) {
+      throw new IllegalStateException("Fail to get the target class!");
+    }
+    this.targetClass = (Class<T>) valueClass;
   }
 
   public T toTarget(T targetObject) {
