@@ -27,8 +27,22 @@ public abstract class BaseModelController<E extends Identifiable<ID>, ID extends
         return null;
     }
 
+    private Method respondsTo(Class clazz, String method, Class[] pTypes) {
+        return KReflectionUtils.findActualMethod(clazz, method, pTypes);
+    }
+
     private Method respondsTo(Class clazz, String method, Class[] pTypes, Class<?> returnType) {
         return KReflectionUtils.findActualMethod(clazz, method, pTypes, returnType);
+    }
+
+    protected Object invoke(Object target, String methodName, Class[] pTypes, Object... params) {
+        if (target != null) {
+            Method method = respondsTo(target.getClass(), methodName, pTypes);
+            if (method != null) {
+                return KReflectionUtils.invokeMethod(method, target, params);
+            }
+        }
+        throw new IllegalArgumentException("Unknown method!");
     }
 
     protected Object invoke(Object target, String methodName, Class[] pTypes, Class<?> returnType, Object... params) {

@@ -41,4 +41,13 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
         }
         return (Page<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class, Pageable.class}, Page.class, new Object[]{new JpaQuerySpecification(query), pageable});
     }
+
+    @RequestMapping(value = "/count", method = {RequestMethod.POST, RequestMethod.GET})
+    @Transactional
+    @ResponseBody
+    protected Long count(Q query, Principal principal) {
+        handleQuery(query, principal);
+        return (long) invoke(getRepository(), "count", new Class[]{Specification.class}, new JpaQuerySpecification(query));
+    }
+
 }
