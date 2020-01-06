@@ -117,11 +117,22 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
         if (columnName.indexOf(".") > 0) { // 带Join查询
             String[] columns = columnName.split("\\.");
             From from = entityRoot;
+            boolean existence = false;
             for (int i = 0; i < columns.length - 1; i++) {// 不包含最后一位
-                if (joinType == null) {
-                    from = from.join(columns[i]);
-                } else {
-                    from = from.join(columns[i], joinType);
+                for (Object o : from.getJoins()) {
+                    javax.persistence.criteria.Join join = (javax.persistence.criteria.Join) o;
+                    if (join.getAttribute().getName().equals(columns[i])) {
+                        existence = true;
+                        from = join;
+                        break;
+                    }
+                }
+                if (!existence) {
+                    if (joinType == null) {
+                        from = from.join(columns[i]);
+                    } else {
+                        from = from.join(columns[i], joinType);
+                    }
                 }
             }
             path = from.get(columns[columns.length - 1]);
