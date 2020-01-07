@@ -15,4 +15,6 @@ public @interface QueryClass {
 
     OrderProperty[] orders();
 
+    boolean distinct() default false;
+
 }

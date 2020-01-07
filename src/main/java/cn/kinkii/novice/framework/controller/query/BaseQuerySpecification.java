@@ -32,6 +32,13 @@ public abstract class BaseQuerySpecification<T extends BaseQuery> {
         return result;
     }
 
+    protected Boolean getClassDistinct() {
+        if (query.getClass().isAnnotationPresent(QueryClass.class)) {
+            return query.getClass().getAnnotation(QueryClass.class).distinct();
+        }
+        return false;
+    }
+
     protected List<Order> getClassOrders() {
         if (orderCache.get(query.getClass()) == null) {
             List<OrderProperty> orderProperties = new ArrayList<>();

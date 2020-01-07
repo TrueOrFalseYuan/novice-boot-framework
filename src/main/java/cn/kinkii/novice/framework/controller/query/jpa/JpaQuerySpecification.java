@@ -28,6 +28,7 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
     public Predicate toPredicate(Root<T> entityRoot, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
         List<Predicate> allPredicates = new ArrayList<>();
         Map<String, List<Predicate>> groupPredicates = new HashMap<>();
+        criteriaQuery.distinct(getClassDistinct());
 
         KReflectionUtils.doWithFields(query.getClass(), field -> {
             QueryProperty queryProperty = field.getAnnotation(QueryProperty.class);
