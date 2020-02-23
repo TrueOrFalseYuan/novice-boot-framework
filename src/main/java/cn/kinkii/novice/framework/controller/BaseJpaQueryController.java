@@ -26,7 +26,7 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     @RequestMapping(value = "/query", method = {RequestMethod.POST, RequestMethod.GET})
     @Transactional
     @ResponseBody
-    protected List<E> query(Q query, Principal principal) {
+    protected List<E> query(@Valid Q query, Principal principal) {
         handleQuery(query, principal);
         return (List<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class}, List.class, new JpaQuerySpecification(query));
     }
@@ -34,7 +34,7 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     @RequestMapping(value = "/query/page", method = {RequestMethod.POST, RequestMethod.GET})
     @Transactional
     @ResponseBody
-    protected Page<E> queryByPage(Q query, Pageable pageable, Principal principal) {
+    protected Page<E> queryByPage(@Valid Q query, Pageable pageable, Principal principal) {
         handleQuery(query, principal);
         if (pageable.getSort().iterator().hasNext()) {
             query.setIsSortByAnnotation(false);
@@ -45,7 +45,7 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     @RequestMapping(value = "/count", method = {RequestMethod.POST, RequestMethod.GET})
     @Transactional
     @ResponseBody
-    protected Long count(Q query, Principal principal) {
+    protected Long count(@Valid Q query, Principal principal) {
         handleQuery(query, principal);
         return (long) invoke(getRepository(), "count", new Class[]{Specification.class}, new JpaQuerySpecification(query));
     }
