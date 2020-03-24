@@ -75,6 +75,14 @@ public abstract class BaseModelController<E extends Identifiable<ID>, ID extends
         return invokeMethods(methodName, new Class[]{}, null, params);
     }
 
+    public Boolean isCoherent(E entity, ID id) {
+        if (entity == null) {
+            return true;
+        } else {
+            return entity.getId().equals(id);
+        }
+    }
+
     protected List<ID> parseIdString(String ids) {
         List<ID> parsedIds = Lists.newArrayList();
         if (idClazz != null) {

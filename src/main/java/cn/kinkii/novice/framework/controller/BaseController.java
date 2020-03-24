@@ -1,5 +1,6 @@
 package cn.kinkii.novice.framework.controller;
 
+import cn.kinkii.novice.framework.entity.Identifiable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,11 +38,4 @@ public abstract class BaseController {
         }
     }
 
-    protected List<MultipartFile> getUploadFiles(HttpServletRequest request, String name) {
-        if (request instanceof MultipartHttpServletRequest) {
-            List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles(name);
-            return files;
-        }
-        return null;
-    }
 }
