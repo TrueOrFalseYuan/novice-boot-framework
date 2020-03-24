@@ -36,13 +36,14 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
             KReflectionUtils.makeAccessible(field);
             Object value = field.get(query);
             if (value != null) {
-                if (StringUtils.hasText(queryProperty.group())) {
-                    List<Predicate> predicates = groupPredicates.computeIfAbsent(queryProperty.group(), k -> new ArrayList<>());
-                    predicates.add(buildPredicate(criteriaBuilder, entityRoot, queryProperty, value));
-                } else {
-                    allPredicates.add(buildPredicate(criteriaBuilder, entityRoot, queryProperty, value));
+                if (!(value instanceof String) || StringUtils.hasText((String) value)) {
+                    if (StringUtils.hasText(queryProperty.group())) {
+                        List<Predicate> predicates = groupPredicates.computeIfAbsent(queryProperty.group(), k -> new ArrayList<>());
+                        predicates.add(buildPredicate(criteriaBuilder, entityRoot, queryProperty, value));
+                    } else {
+                        allPredicates.add(buildPredicate(criteriaBuilder, entityRoot, queryProperty, value));
+                    }
                 }
-
             }
             field.setAccessible(false);
         }, field -> field.isAnnotationPresent(QueryProperty.class));
