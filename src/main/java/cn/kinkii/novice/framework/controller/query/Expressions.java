@@ -7,6 +7,7 @@ import java.util.List;
 
 public abstract class Expressions {
 
+    @SuppressWarnings("unchecked")
     public static <T> List<T> handleIterableValue(T value) {
         List<T> results = new ArrayList<>();
         if (value.getClass().isArray()) {
