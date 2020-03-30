@@ -1,4 +1,4 @@
-package cn.kinkii.novice.framework.utils;
+package cn.kinkii.novice.framework.entity.utils;
 
 import cn.kinkii.novice.framework.entity.AssemblyNode;
 import com.google.common.collect.Lists;
@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class KAssembleUtils<E extends AssemblyNode<T>, T extends Serializable> {
+public class NodeAssembler<E extends AssemblyNode<T>, T extends Serializable> {
 
     public Set<E> assemble(Set<E> nodes) {
         Set<E> result = new LinkedHashSet<>();
