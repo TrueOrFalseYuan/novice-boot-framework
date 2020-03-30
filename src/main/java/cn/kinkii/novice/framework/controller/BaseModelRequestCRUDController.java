@@ -69,6 +69,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
     protected void handleAfterPatch(E model, Principal principal) {
         // Do nothing...
     }
+
     protected void handleAfterDelete(ID id, Principal principal) {
         // Do nothing...
     }
@@ -159,6 +160,13 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         }
     }
 
+    @RequestMapping(value = "/{id}/delete", method = RequestMethod.POST)
+    @ResponseBody
+    @Transactional
+    public BaseResult deleteWithPost(@PathVariable ID id, Principal principal, HttpServletRequest request) {
+        return delete(id, principal, request);
+    }
+
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseBody
     @Transactional
@@ -179,8 +187,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         }
     }
 
-
-    @RequestMapping(value = "/batchdelete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/delete", method = {RequestMethod.DELETE, RequestMethod.POST})
     @ResponseBody
     @Transactional
     public BaseResult batchDelete(String ids, Principal principal, HttpServletRequest request) {
