@@ -13,7 +13,7 @@ public class NodeAssembler<E extends AssemblyNode<T>, T extends Serializable> {
     public Set<E> assemble(Set<E> nodes) {
         Set<E> result = new LinkedHashSet<>();
         for (E node : nodes) {
-            if (!StringUtils.hasText(node.getParentId().toString())) {
+            if (!(node.getParentId()!=null && StringUtils.hasText(node.getParentId().toString()))) {
                 Set<E> children = assemble(nodes, node.getSelfId());
                 if (children != null && children.size() > 0) {
                     node.setChildren(Lists.newArrayList(children));
@@ -27,7 +27,7 @@ public class NodeAssembler<E extends AssemblyNode<T>, T extends Serializable> {
     private Set<E> assemble(Set<E> nodes, T parentId) {
         Set<E> result = new LinkedHashSet<>();
         for (E node : nodes) {
-            if (StringUtils.hasText(node.getParentId().toString()) && parentId.equals(node.getParentId())) {
+            if (node.getParentId()!=null && StringUtils.hasText(node.getParentId().toString()) && parentId.equals(node.getParentId())) {
                 Set<E> children = assemble(nodes, node.getSelfId());
                 if (children != null && children.size() > 0) {
                     node.setChildren(Lists.newArrayList(children));
