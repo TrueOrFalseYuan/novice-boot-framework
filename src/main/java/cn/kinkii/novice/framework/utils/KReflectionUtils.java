@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class KReflectionUtils extends ReflectionUtils {
 
@@ -30,7 +31,7 @@ public class KReflectionUtils extends ReflectionUtils {
 
         List<Method> results = new ArrayList<>();
         doWithMethods(clazz, results::add, m -> (name.equals(m.getName()) &&
-                (pTypes == null || Arrays.equals(pTypes, m.getParameterTypes())) &&
+                (pTypes == null || compareTypeLists(pTypes, m.getParameterTypes())) &&
                 (returnType == null || returnType == m.getReturnType() )));
 
         if (results.size() == 0) {
@@ -40,6 +41,12 @@ public class KReflectionUtils extends ReflectionUtils {
             return results.get(0);
         }
 
+    }
+
+    private static boolean compareTypeLists(Class<?>[] t1, Class<?>[] t2) {
+        if (t1.length != t2.length) return false;
+        if (Arrays.equals(t1, t2)) return true;
+        return IntStream.range(0, t1.length).allMatch(i -> t2[i].isAssignableFrom(t1[i]));
     }
 
     public static List<Field> getFields(Class clazz) {
