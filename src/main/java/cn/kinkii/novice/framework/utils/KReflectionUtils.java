@@ -1,9 +1,5 @@
 package cn.kinkii.novice.framework.utils;
 
-import org.springframework.aop.framework.AdvisedSupport;
-import org.springframework.aop.framework.AopProxy;
-import org.springframework.aop.support.AopUtils;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
@@ -35,18 +31,15 @@ public class KReflectionUtils extends ReflectionUtils {
         List<Method> results = new ArrayList<>();
         doWithMethods(clazz, results::add, m -> (name.equals(m.getName()) &&
                 (pTypes == null || Arrays.equals(pTypes, m.getParameterTypes())) &&
-                (returnType == null || returnType == m.getReturnType())));
+                (returnType == null || returnType == m.getReturnType() )));
 
         if (results.size() == 0) {
             return null;
-        } else if (results.size() == 1) {
-            return results.get(0);
         } else {
-            throw new IllegalStateException(
-                    String.format("Class<%s> has <%d> methods named <%s>, please specify the parameter types or the return type!",
-                            clazz.getCanonicalName(), results.size(), name
-                    ));
+            // 可改进
+            return results.get(0);
         }
+
     }
 
     public static List<Field> getFields(Class clazz) {

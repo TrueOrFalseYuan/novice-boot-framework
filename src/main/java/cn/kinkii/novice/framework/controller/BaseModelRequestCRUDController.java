@@ -94,7 +94,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         R handledModelRequest = handleCreate(modelRequest, principal, request);
         E newModel = toCreateModel(handledModelRequest, principal);
         try {
-            invokeMethods("create", new Class[]{Identifiable.class}, null, newModel);
+            invokeMethods("create", new Class[]{clazz}, null, newModel);
             handleAfterCreate(newModel, principal);
             return BaseResult.success(getMessage(GlobalMessage.CREATE_SUCCESS.getMessageKey())).addValue("id", newModel.getId());
         } catch (RuntimeException ignored) {
@@ -116,14 +116,14 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         if (!canUpdate(principal)) {
             return null;
         }
-        if (!(Boolean) invokeMethods("existsById", new Class[]{Object.class}, boolean.class, id)) {
+        if (!(Boolean) invokeMethods("existsById", new Class[]{idClazz}, boolean.class, id)) {
             throw new InvalidParamException(getMessage(GlobalMessage.UPDATE_FAILURE_NOT_EXISTED.getMessageKey()));
         }
         R handledModelRequest = handleUpdate(id, modelRequest, principal, request);
         E updatingModel = toUpdateModel(handledModelRequest, principal);
         updatingModel.setId(id);
         try {
-            invokeMethods("update", new Class[]{Identifiable.class}, null, updatingModel);
+            invokeMethods("update", new Class[]{clazz}, null, updatingModel);
             handleAfterUpdate(updatingModel, principal);
             return BaseResult.success(getMessage(GlobalMessage.UPDATE_SUCCESS.getMessageKey()));
         } catch (Exception ignored) {
@@ -145,14 +145,14 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         if (!canPatch(principal)) {
             return null;
         }
-        if (!(Boolean) invokeMethods("existsById", new Class[]{Object.class}, boolean.class, id)) {
+        if (!(Boolean) invokeMethods("existsById", new Class[]{idClazz}, boolean.class, id)) {
             throw new InvalidParamException(getMessage(GlobalMessage.UPDATE_FAILURE_NOT_EXISTED.getMessageKey()));
         }
         R handledModelRequest = handlePatch(id, modelRequest, principal, request);
         E patchModel = toPatchModel(handledModelRequest, principal);
         patchModel.setId(id);
         try {
-            invokeMethods("patch", new Class[]{Identifiable.class}, null, patchModel);
+            invokeMethods("patch", new Class[]{clazz}, null, patchModel);
             handleAfterPatch(patchModel, principal);
             return BaseResult.success(getMessage(GlobalMessage.UPDATE_SUCCESS.getMessageKey()));
         } catch (RuntimeException ignored) {
@@ -174,12 +174,12 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         if (!canDelete(principal)) {
             return null;
         }
-        if (!(Boolean) invokeMethods("existsById", new Class[]{Object.class}, boolean.class, id)) {
+        if (!(Boolean) invokeMethods("existsById", new Class[]{idClazz}, boolean.class, id)) {
             throw new InvalidParamException(getMessage(GlobalMessage.DELETE_FAILURE_NOT_EXISTED.getMessageKey()));
         }
         handleDelete(id, principal, request);
         try {
-            invokeMethods("deleteById", new Class[]{Object.class}, null, id);
+            invokeMethods("deleteById", new Class[]{idClazz}, null, id);
             handleAfterDelete(id, principal);
             return BaseResult.success(getMessage(GlobalMessage.DELETE_SUCCESS.getMessageKey()));
         } catch (RuntimeException ignored) {
