@@ -46,12 +46,12 @@ public abstract class AnnotatedRequest {
             Method targetSetter = KReflectionUtils.findActualMethod(targetClass, targetSetterName, new Class[]{reqField.getType()});
             if (targetSetter != null) {
                 mapper.put(reqField, targetSetter);
-                logger.info(String.format("Method <%s> of <%s> attached with field <%s> of <%s>!", targetSetterName, targetClass.getCanonicalName(), propName, requestClass.getCanonicalName()));
+                logger.debug(String.format("Method <%s> of <%s> attached with field <%s> of <%s>!", targetSetterName, targetClass.getCanonicalName(), propName, requestClass.getCanonicalName()));
 
             } else {
                 if (targetField != null) {
                     mapper.put(reqField, targetField);
-                    logger.info(String.format("Field <%s> of <%s> attached with field <%s> of <%s>!", propName, targetClass.getCanonicalName(), propName, requestClass.getCanonicalName()));
+                    logger.debug(String.format("Field <%s> of <%s> attached with field <%s> of <%s>!", propName, targetClass.getCanonicalName(), propName, requestClass.getCanonicalName()));
                 }
             }
         });
