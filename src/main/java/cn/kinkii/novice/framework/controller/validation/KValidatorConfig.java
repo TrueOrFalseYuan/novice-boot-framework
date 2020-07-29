@@ -15,7 +15,7 @@ public class KValidatorConfig {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setBasenames("classpath:cn/kinkii/novice/framework/i18n/validation");
         messageSource.setDefaultEncoding("UTF-8");
-        messageSource.setAlwaysUseMessageFormat(true);
+        messageSource.setAlwaysUseMessageFormat(false);
         messageSource.setCacheSeconds(60);
 
         LocalValidatorFactoryBean factoryBean = new LocalValidatorFactoryBean();
