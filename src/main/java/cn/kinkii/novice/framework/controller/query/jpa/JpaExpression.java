@@ -7,4 +7,5 @@ import javax.persistence.criteria.Predicate;
 public interface JpaExpression {
 
     Predicate build(CriteriaBuilder builder, Path path, Object value);
+
 }

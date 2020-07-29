@@ -2,6 +2,7 @@ package cn.kinkii.novice.framework.controller.query.jpa;
 
 import cn.kinkii.novice.framework.controller.query.Expression;
 import cn.kinkii.novice.framework.controller.query.Expressions;
+import cn.kinkii.novice.framework.db.mysql.KMySQLFunction;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Path;
@@ -12,34 +13,34 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"unchecked", "WeakerAccess"})
-public class JpaExpressions extends Expressions{
+public class JpaExpressions extends Expressions {
 
     private static Map<Expression, JpaExpression> expressionsMap = new HashMap<>();
 
     static {
         expressionsMap.put(Expression.EQ, (builder, path, value) -> {
-            if(isIterableValue(value)) {
+            if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
                 handleIterableValue(value).forEach(e -> {
-                    predicateList.add(builder.equal(path, (Comparable) e));
+                    predicateList.add(builder.equal(path, e));
                 });
                 return builder.or(predicateList.toArray(new Predicate[]{}));
             }
-            return builder.equal(path, (Comparable) value);
+            return builder.equal(path, value);
         });
         expressionsMap.put(Expression.NEQ, (builder, path, value) -> {
-            if(isIterableValue(value)) {
+            if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
                 handleIterableValue(value).forEach(e -> {
-                    predicateList.add(builder.notEqual(path, (Comparable) e));
+                    predicateList.add(builder.notEqual(path, e));
                 });
                 return builder.or(predicateList.toArray(new Predicate[]{}));
             }
-            return builder.notEqual(path, (Comparable) value);
+            return builder.notEqual(path, value);
         });
 
         expressionsMap.put(Expression.GT, (builder, path, value) -> {
-            if(isIterableValue(value)) {
+            if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
                 handleIterableValue(value).forEach(e -> {
                     predicateList.add(builder.greaterThan(path, (Comparable) e));
@@ -49,7 +50,7 @@ public class JpaExpressions extends Expressions{
             return builder.greaterThan(path, (Comparable) value);
         });
         expressionsMap.put(Expression.LT, (builder, path, value) -> {
-            if(isIterableValue(value)) {
+            if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
                 handleIterableValue(value).forEach(e -> {
                     predicateList.add(builder.lessThan(path, (Comparable) e));
@@ -59,7 +60,7 @@ public class JpaExpressions extends Expressions{
             return builder.lessThan(path, (Comparable) value);
         });
         expressionsMap.put(Expression.GTE, (builder, path, value) -> {
-            if(isIterableValue(value)) {
+            if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
                 handleIterableValue(value).forEach(e -> {
                     predicateList.add(builder.greaterThanOrEqualTo(path, (Comparable) e));
@@ -69,7 +70,7 @@ public class JpaExpressions extends Expressions{
             return builder.greaterThanOrEqualTo(path, (Comparable) value);
         });
         expressionsMap.put(Expression.LTE, (builder, path, value) -> {
-            if(isIterableValue(value)) {
+            if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
                 handleIterableValue(value).forEach(e -> {
                     predicateList.add(builder.lessThanOrEqualTo(path, (Comparable) e));
@@ -80,7 +81,7 @@ public class JpaExpressions extends Expressions{
         });
 
         expressionsMap.put(Expression.LIKE, (builder, path, value) -> {
-            if(isIterableValue(value)) {
+            if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
                 handleIterableValue(value).forEach(e -> {
                     predicateList.add(builder.like(path, (String) e));
@@ -90,7 +91,7 @@ public class JpaExpressions extends Expressions{
             return builder.like(path, (String) value);
         });
         expressionsMap.put(Expression.NOT_LIKE, (builder, path, value) -> {
-            if(isIterableValue(value)) {
+            if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
                 handleIterableValue(value).forEach(e -> {
                     predicateList.add(builder.notLike(path, (String) e));
@@ -99,6 +100,18 @@ public class JpaExpressions extends Expressions{
             }
             return builder.notLike(path, (String) value);
         });
+        // Match expression is Only supported while using KMySQLDialect
+        expressionsMap.put(Expression.MATCH, (CriteriaBuilder builder, Path path, Object value) -> {
+            if (isIterableValue(value)) {
+                List<Predicate> predicateList = new ArrayList<>();
+                handleIterableValue(value).forEach(e -> {
+                    predicateList.add(builder.greaterThan(builder.function(KMySQLFunction.MATCH.name(), Double.class, path, builder.literal((String) e)), 0.0));
+                });
+                return builder.or(predicateList.toArray(new Predicate[]{}));
+            }
+            return builder.notLike(path, (String) value);
+        });
+
         expressionsMap.put(Expression.IN, (builder, path, value) -> {
             CriteriaBuilder.In<Object> in = builder.in(path);
             handleIterableValue(value).forEach(in::value);
