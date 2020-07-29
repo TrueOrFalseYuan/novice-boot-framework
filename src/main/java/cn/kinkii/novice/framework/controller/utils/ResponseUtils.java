@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 
 public class ResponseUtils {
 
-
   public static HttpServletResponse getResponse() {
     RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
     if (requestAttributes != null) {
@@ -28,4 +27,5 @@ public class ResponseUtils {
     response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
     response.setHeader("Location", url);
   }
+
 }

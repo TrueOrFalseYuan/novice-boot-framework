@@ -30,7 +30,6 @@ import java.util.Locale;
 @Slf4j
 public class BaseControllerHandler {
 
-
     private static final String EXCEPTION_DETAIL = "detail";
     private static final String EXCEPTION_RESPONSE_PREFIX = "defined.response.";
 
