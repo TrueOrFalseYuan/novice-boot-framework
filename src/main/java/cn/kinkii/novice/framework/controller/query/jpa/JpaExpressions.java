@@ -7,15 +7,12 @@ import cn.kinkii.novice.framework.db.mysql.KMySQLFunction;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-@SuppressWarnings({"unchecked", "WeakerAccess"})
+@SuppressWarnings({"unchecked", "WeakerAccess", "rawtypes"})
 public class JpaExpressions extends Expressions {
 
-    private static Map<Expression, JpaExpression> expressionsMap = new HashMap<>();
+    private static final Map<Expression, JpaExpression> expressionsMap = new HashMap<>();
 
     static {
         expressionsMap.put(Expression.EQ, (builder, path, value) -> {
@@ -101,15 +98,20 @@ public class JpaExpressions extends Expressions {
             return builder.notLike(path, (String) value);
         });
         // Match expression is Only supported while using KMySQLDialect
-        expressionsMap.put(Expression.MATCH, (CriteriaBuilder builder, Path path, Object value) -> {
+        expressionsMap.put(Expression.MATCH, (builder, path, value) -> {
             if (isIterableValue(value)) {
-                List<Predicate> predicateList = new ArrayList<>();
+                StringJoiner againstValueJoiner = new StringJoiner(" ");
                 handleIterableValue(value).forEach(e -> {
-                    predicateList.add(builder.greaterThan(builder.function(KMySQLFunction.MATCH.name(), Double.class, path, builder.literal((String) e)), 0.0));
+                    againstValueJoiner.add("+\"" + value + "\"");
                 });
-                return builder.or(predicateList.toArray(new Predicate[]{}));
+                return builder.greaterThan(builder.function(KMySQLFunction.MATCH.name(), Double.class, path, builder.literal((String) againstValueJoiner.toString())), 0.0);
+            } else {
+                if (value instanceof String) {
+                    return builder.greaterThan(builder.function(KMySQLFunction.MATCH.name(), Double.class, path, builder.literal("+\"" + value + "\"")), 0.0);
+                } else {
+                    throw new IllegalArgumentException("The value should be a string while using MATCH expression!");
+                }
             }
-            return builder.notLike(path, (String) value);
         });
 
         expressionsMap.put(Expression.IN, (builder, path, value) -> {
