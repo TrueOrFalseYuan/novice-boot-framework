@@ -104,7 +104,7 @@ public class JpaExpressions extends Expressions {
                 handleIterableValue(value).forEach(e -> {
                     againstValueJoiner.add("+\"" + value + "\"");
                 });
-                return builder.greaterThan(builder.function(KMySQLFunction.MATCH.name(), Double.class, path, builder.literal((String) againstValueJoiner.toString())), 0.0);
+                return builder.greaterThan(builder.function(KMySQLFunction.MATCH.name(), Double.class, path, builder.literal(againstValueJoiner.toString())), 0.0);
             } else {
                 if (value instanceof String) {
                     return builder.greaterThan(builder.function(KMySQLFunction.MATCH.name(), Double.class, path, builder.literal("+\"" + value + "\"")), 0.0);
