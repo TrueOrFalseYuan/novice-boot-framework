@@ -20,7 +20,7 @@ import java.util.List;
 @Valid
 public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID extends Serializable, Q extends JpaQuery<E>> extends BaseModelQueryController<E, ID> {
 
-    protected boolean canQuery() {
+    protected Boolean canQuery() {
         return true;
     }
 
@@ -28,7 +28,7 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     protected void handleQuery(Q query, Principal principal) {
     }
 
-    protected boolean canQueryByPage() {
+    protected Boolean canQueryByPage() {
         return true;
     }
 

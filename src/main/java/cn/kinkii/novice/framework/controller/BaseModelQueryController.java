@@ -20,11 +20,11 @@ import java.util.Optional;
 @Valid
 public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID extends Serializable> extends BaseModelController<E, ID> {
 
-    protected boolean canGet() {
+    protected Boolean canGet() {
         return true;
     }
 
-    protected boolean canQueryAll() {
+    protected Boolean canQueryAll() {
         return true;
     }
 
