@@ -20,7 +20,11 @@ import java.util.Optional;
 @Valid
 public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID extends Serializable> extends BaseModelController<E, ID> {
 
-    protected Boolean canQueryAll() {
+    protected boolean canGet() {
+        return true;
+    }
+
+    protected boolean canQueryAll() {
         return true;
     }
 
@@ -40,6 +44,9 @@ public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID ex
     @Transactional
     @ResponseBody
     public E get(@PathVariable("id") ID id, Principal principal) {
+        if (!canGet()) {
+            return null;
+        }
         try {
             handleGet(id, principal);
             E model = ((Optional<E>) invokeMethods("findById", new Class[]{Object.class}, Optional.class, id)).orElse(null);

@@ -20,26 +20,46 @@ import java.util.List;
 @Valid
 public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID extends Serializable, Q extends JpaQuery<E>> extends BaseModelQueryController<E, ID> {
 
+    protected boolean canQuery() {
+        return true;
+    }
+
+    @SuppressWarnings("unused")
     protected void handleQuery(Q query, Principal principal) {
+    }
+
+    protected boolean canQueryByPage() {
+        return true;
+    }
+
+    @SuppressWarnings("unused")
+    protected void handlePageQuery(Q query, Pageable pageable, Principal principal) {
+        handleQuery(query, principal);
     }
 
     @RequestMapping(value = "/query", method = {RequestMethod.POST, RequestMethod.GET})
     @Transactional
     @ResponseBody
     protected List<E> query(@Valid Q query, Principal principal) {
+        if (!canQuery()) {
+            return null;
+        }
         handleQuery(query, principal);
-        return (List<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class}, List.class, new JpaQuerySpecification(query));
+        return (List<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class}, List.class, new JpaQuerySpecification<>(query));
     }
 
     @RequestMapping(value = "/query/page", method = {RequestMethod.POST, RequestMethod.GET})
     @Transactional
     @ResponseBody
     protected Page<E> queryByPage(@Valid Q query, Pageable pageable, Principal principal) {
-        handleQuery(query, principal);
+        if (!canQueryByPage()) {
+            return null;
+        }
+        handlePageQuery(query, pageable, principal);
         if (pageable.getSort().iterator().hasNext()) {
             query.setIsSortByAnnotation(false);
         }
-        return (Page<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class, Pageable.class}, Page.class, new Object[]{new JpaQuerySpecification(query), pageable});
+        return (Page<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class, Pageable.class}, Page.class, new Object[]{new JpaQuerySpecification<>(query), pageable});
     }
 
     @RequestMapping(value = "/count", method = {RequestMethod.POST, RequestMethod.GET})
@@ -47,7 +67,7 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     @ResponseBody
     protected Long count(@Valid Q query, Principal principal) {
         handleQuery(query, principal);
-        return (long) invoke(getRepository(), "count", new Class[]{Specification.class}, new JpaQuerySpecification(query));
+        return (long) invoke(getRepository(), "count", new Class[]{Specification.class}, new JpaQuerySpecification<>(query));
     }
 
 }
