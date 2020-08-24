@@ -76,6 +76,26 @@ public class JpaExpressions extends Expressions {
             }
             return builder.lessThanOrEqualTo(path, (Comparable) value);
         });
+        expressionsMap.put(Expression.BETWEEN, (builder, path, value) -> {
+            if (!isIterableValue(value)) {
+                throw new IllegalArgumentException("The value should be iterable!");
+            } else {
+                List<Object> values = handleIterableValue(value);
+                if (values.size() != 2) {
+                    throw new IllegalArgumentException("The value should be contain 2 object!");
+                } else {
+                    if (values.get(0) instanceof Long) {
+                        return builder.between((Path<Long>) path, (Long) values.get(0), (Long) values.get(1));
+                    } else if (values.get(0) instanceof Integer) {
+                        return builder.between((Path<Integer>) path, (Integer) values.get(0), (Integer) values.get(1));
+                    } else if (values.get(0) instanceof Date) {
+                        return builder.between((Path<Date>) path, (Date) values.get(0), (Date) values.get(1));
+                    } else {
+                        throw new IllegalArgumentException("Unsupported type for between expression! - " + values.get(0).getClass().getSimpleName());
+                    }
+                }
+            }
+        });
 
         expressionsMap.put(Expression.LIKE, (builder, path, value) -> {
             if (isIterableValue(value)) {

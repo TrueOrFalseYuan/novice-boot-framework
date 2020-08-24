@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("rawtypes")
 public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpecification<JpaQuery> implements Specification<T> {
 
     public JpaQuerySpecification(JpaQuery<T> query) {
@@ -25,6 +26,7 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
     }
 
     @Override
+    @SuppressWarnings("NullableProblems")
     public Predicate toPredicate(Root<T> entityRoot, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
         List<Predicate> allPredicates = new ArrayList<>();
         Map<String, List<Predicate>> groupPredicates = new HashMap<>();
@@ -109,10 +111,12 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
         throw new IllegalStateException("Unsupported join type in jpa query! - " + join.name());
     }
 
+    @SuppressWarnings("rawtypes")
     private Path getPath(String columnName, Root<T> entityRoot) {
         return getPath(columnName, entityRoot, null);
     }
 
+    @SuppressWarnings("rawtypes")
     private Path getPath(String columnName, Root<T> entityRoot, JoinType joinType) {
         EntityType<T> entityType = entityRoot.getModel();
         Path path;

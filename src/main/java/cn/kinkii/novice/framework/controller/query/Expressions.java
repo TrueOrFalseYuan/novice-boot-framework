@@ -8,12 +8,12 @@ import java.util.List;
 public abstract class Expressions {
 
     @SuppressWarnings("unchecked")
-    public static <T> List<T> handleIterableValue(T value) {
-        List<T> results = new ArrayList<>();
+    public static List<Object> handleIterableValue(Object value) {
+        List<Object> results = new ArrayList<>();
         if (value.getClass().isArray()) {
-            results.addAll(Arrays.asList(((T[]) value)));
+            results.addAll(Arrays.asList((Object[]) (value)));
         } else if (value instanceof Collection) {
-            results.addAll((Collection<T>) value);
+            results.addAll((Collection<Object>) value);
         } else {
             results.add(value);
         }
