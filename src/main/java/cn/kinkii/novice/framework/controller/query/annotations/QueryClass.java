@@ -13,7 +13,7 @@ public @interface QueryClass {
 
     Junction junction() default Junction.AND;
 
-    OrderProperty[] orders();
+    OrderProperty[] orders() default {};
 
     boolean distinct() default false;
 
