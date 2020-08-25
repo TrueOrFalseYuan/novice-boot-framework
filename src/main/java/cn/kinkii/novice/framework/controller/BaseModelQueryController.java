@@ -63,7 +63,7 @@ public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID ex
     @RequestMapping(value = "/all", method = RequestMethod.GET)
     @Transactional
     @ResponseBody
-    protected List<E> all(Principal principal) {
+    public List<E> all(Principal principal) {
         if (!canQueryAll()) {
             return null;
         }
@@ -78,7 +78,7 @@ public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID ex
     @RequestMapping(value = "/all/page", method = RequestMethod.GET)
     @Transactional
     @ResponseBody
-    protected Page<E> allByPage(Pageable pageable, Principal principal) {
+    public Page<E> allByPage(Pageable pageable, Principal principal) {
         if (!canQueryAll()) {
             return null;
         }
