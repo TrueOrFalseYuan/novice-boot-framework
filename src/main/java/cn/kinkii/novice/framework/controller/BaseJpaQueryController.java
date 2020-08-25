@@ -33,7 +33,7 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     }
 
     protected Boolean canQueryByPage() {
-        return true;
+        return canQuery();
     }
 
     @SuppressWarnings("unused")
@@ -76,7 +76,9 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     @Transactional
     @ResponseBody
     public Long count(@Valid Q query, Principal principal) {
-        handleQuery(query, principal);
+        if (!canQuery()) {
+            return null;
+        }
         return (long) invoke(getRepository(), "count", new Class[]{Specification.class}, new JpaQuerySpecification<>(query));
     }
 
