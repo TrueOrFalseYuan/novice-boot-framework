@@ -13,6 +13,7 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.io.Serializable;
 import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,16 +29,18 @@ public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID ex
         return true;
     }
 
-    protected void handleGet(ID id, Principal principal) {
+    protected Boolean handleGet(ID id, Principal principal) {
         // Do nothing...
+        return true;
     }
 
     protected void handleAfterGet(E model, Principal principal) {
         // Do nothing...
     }
 
-    protected void handleQueryAll(Principal principal) {
+    protected Boolean handleQueryAll(Principal principal) {
         // Do nothing...
+        return true;
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -48,16 +51,17 @@ public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID ex
             return null;
         }
         try {
-            handleGet(id, principal);
-            E model = ((Optional<E>) invokeMethods("findById", new Class[]{Object.class}, Optional.class, id)).orElse(null);
-            if (model != null) {
-                handleAfterGet(model, principal);
+            if (handleGet(id, principal)) {
+                E model = ((Optional<E>) invokeMethods("findById", new Class[]{Object.class}, Optional.class, id)).orElse(null);
+                if (model != null) {
+                    handleAfterGet(model, principal);
+                }
+                return model;
             }
-            return model;
+            return null;
         } catch (RuntimeException ignored) {
             throw new InternalServiceException(getMessage(GlobalMessage.ERROR_SERVICE.getMessageKey()));
         }
-
     }
 
     @RequestMapping(value = "/all", method = RequestMethod.GET)
@@ -68,8 +72,10 @@ public abstract class BaseModelQueryController<E extends Identifiable<ID>, ID ex
             return null;
         }
         try {
-            handleQueryAll(principal);
-            return (List<E>) invokeMethods("findAll", new Class[]{}, List.class);
+            if (handleQueryAll(principal)) {
+                return (List<E>) invokeMethods("findAll", new Class[]{}, List.class);
+            }
+            return Collections.emptyList();
         } catch (RuntimeException ignored) {
             throw new InternalServiceException(getMessage(GlobalMessage.ERROR_SERVICE.getMessageKey()));
         }
