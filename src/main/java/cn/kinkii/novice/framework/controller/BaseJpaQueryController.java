@@ -32,6 +32,10 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
         return true;
     }
 
+    protected List<E> handleAfterQuery(List<E> queryResult, Principal principal) {
+        return queryResult;
+    }
+
     protected Boolean canQueryByPage() {
         return canQuery();
     }
@@ -39,6 +43,10 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     @SuppressWarnings("unused")
     protected Boolean handlePageQuery(Q query, Pageable pageable, Principal principal) {
         return handleQuery(query, principal);
+    }
+
+    protected Page<E> handleAfterPageQuery(Page<E> queryResult, Principal principal) {
+        return queryResult;
     }
 
     @RequestMapping(value = "/query", method = {RequestMethod.POST, RequestMethod.GET})
@@ -49,7 +57,10 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
             return null;
         }
         if (handleQuery(query, principal)) {
-            return (List<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class}, List.class, new JpaQuerySpecification<>(query));
+            return handleAfterQuery(
+                    (List<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class}, List.class, new JpaQuerySpecification<>(query)),
+                    principal
+            );
         } else {
             return Collections.emptyList();
         }
@@ -66,7 +77,10 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
             if (pageable.getSort().iterator().hasNext()) {
                 query.setIsSortByAnnotation(false);
             }
-            return (Page<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class, Pageable.class}, Page.class, new Object[]{new JpaQuerySpecification<>(query), pageable});
+            return handleAfterPageQuery(
+                    (Page<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class, Pageable.class}, Page.class, new Object[]{new JpaQuerySpecification<>(query), pageable}),
+                    principal
+            );
         } else {
             return new PageImpl<>(Collections.emptyList(), pageable, 0);
         }
