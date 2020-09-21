@@ -65,13 +65,15 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
         if (query.getIsSortByAnnotation()) {
             List<Order> queryOrders = getClassOrders();
             if (queryOrders.size() != 0) {
+                List<javax.persistence.criteria.Order> orders = new ArrayList<>();
                 queryOrders.forEach(order -> {
                     if (order.getDirection().isDescending()) {
-                        criteriaQuery.orderBy(criteriaBuilder.desc(getPath(order.getColumn(), entityRoot)));
+                        orders.add(criteriaBuilder.desc(getPath(order.getColumn(), entityRoot)));
                     } else {
-                        criteriaQuery.orderBy(criteriaBuilder.asc(getPath(order.getColumn(), entityRoot)));
+                        orders.add(criteriaBuilder.asc(getPath(order.getColumn(), entityRoot)));
                     }
                 });
+                criteriaQuery.orderBy(orders);
             }
         }
 
