@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.EntityType;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,29 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
         Map<String, List<Predicate>> groupPredicates = new HashMap<>();
         criteriaQuery.distinct(getClassDistinct());
 
+        KReflectionUtils.doWithMethods(query.getClass(), method -> {
+            QueryProperty queryProperty = method.getAnnotation(QueryProperty.class);
+
+            KReflectionUtils.makeAccessible(method);
+            Object value = null;
+            try {
+                value = method.invoke(query);
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+            if (value != null) {
+                if (!(value instanceof String) || StringUtils.hasText((String) value)) {
+                    if (StringUtils.hasText(queryProperty.group())) {
+                        groupPredicates.computeIfAbsent(queryProperty.group(), k -> new ArrayList<>())
+                                .add(buildPredicate(criteriaBuilder, entityRoot, queryProperty, value));
+                    } else {
+                        allPredicates.add(buildPredicate(criteriaBuilder, entityRoot, queryProperty, value));
+                    }
+                }
+            }
+//            field.setAccessible(false);
+        }, method -> method.getName().startsWith("get") && method.isAnnotationPresent(QueryProperty.class));
+
         KReflectionUtils.doWithFields(query.getClass(), field -> {
             QueryProperty queryProperty = field.getAnnotation(QueryProperty.class);
 
@@ -40,14 +64,14 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
             if (value != null) {
                 if (!(value instanceof String) || StringUtils.hasText((String) value)) {
                     if (StringUtils.hasText(queryProperty.group())) {
-                        List<Predicate> predicates = groupPredicates.computeIfAbsent(queryProperty.group(), k -> new ArrayList<>());
-                        predicates.add(buildPredicate(criteriaBuilder, entityRoot, queryProperty, value));
+                        groupPredicates.computeIfAbsent(queryProperty.group(), k -> new ArrayList<>())
+                                .add(buildPredicate(criteriaBuilder, entityRoot, queryProperty, value));
                     } else {
                         allPredicates.add(buildPredicate(criteriaBuilder, entityRoot, queryProperty, value));
                     }
                 }
             }
-            field.setAccessible(false);
+//            field.setAccessible(false);
         }, field -> field.isAnnotationPresent(QueryProperty.class));
 
         Predicate result = null;
