@@ -14,10 +14,7 @@ import org.springframework.util.StringUtils;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.EntityType;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @SuppressWarnings("rawtypes")
 public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpecification<JpaQuery> implements Specification<T> {
@@ -114,9 +111,31 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
     }
 
     private Object getValue(QueryProperty queryProperty, Object value) {
-        if (Expression.NOT_LIKE.equals(queryProperty.expression()) || Expression.LIKE.equals(queryProperty.expression())) {
+        if (Expression.NOT_LIKE.equals(queryProperty.expression()) || Expression.LIKE.equals(queryProperty.expression()) || Expression.LIKE_AND.equals(queryProperty.expression())) {
             if (value instanceof String) {
                 return JpaMatches.by(queryProperty.match()).toMatchString((String) value);
+            } else if (value.getClass().isArray() || value instanceof Collection) {
+                List<String> results = new ArrayList<>();
+                if (value.getClass().isArray()) {
+                    //noinspection ConstantConditions
+                    Arrays.asList((Object[]) (value)).forEach(o -> {
+                        if (o instanceof String) {
+                            results.add(JpaMatches.by(queryProperty.match()).toMatchString((String) o));
+                        } else {
+                            throw new IllegalStateException("Please use List<String> type for expression of LIKE, LIKE_AND or NOT_LIKE!");
+                        }
+                    });
+                } else if (value instanceof Collection) {
+                    //noinspection unchecked
+                    ((Collection<Object>) value).forEach(o -> {
+                        if (o instanceof String) {
+                            results.add(JpaMatches.by(queryProperty.match()).toMatchString((String) o));
+                        } else {
+                            throw new IllegalStateException("Please use List<String> type for expression of LIKE, LIKE_AND or NOT_LIKE!");
+                        }
+                    });
+                }
+                return results;
             } else {
                 throw new IllegalStateException("Please use String type for expression of LIKE or NOT_LIKE!");
             }
