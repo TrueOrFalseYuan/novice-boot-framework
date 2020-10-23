@@ -1,5 +1,7 @@
 package cn.kinkii.novice.framework.controller.request.annotations;
 
+import cn.kinkii.novice.framework.controller.request.OperateLogType;
+
 import java.lang.annotation.*;
 
 @Target(ElementType.METHOD)
@@ -15,7 +17,7 @@ public @interface RequestOperateLog {
      *  操作类型
      * @return
      */
-    String operatorType() default "";
+    OperateLogType operatorType() default OperateLogType.QUERY;
 
     /**
      *  操作描述
