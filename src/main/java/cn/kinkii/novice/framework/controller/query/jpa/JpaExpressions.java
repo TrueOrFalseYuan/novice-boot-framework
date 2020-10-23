@@ -96,7 +96,6 @@ public class JpaExpressions extends Expressions {
                 }
             }
         });
-
         expressionsMap.put(Expression.LIKE, (builder, path, value) -> {
             if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
@@ -104,6 +103,16 @@ public class JpaExpressions extends Expressions {
                     predicateList.add(builder.like(path, (String) e));
                 });
                 return builder.or(predicateList.toArray(new Predicate[]{}));
+            }
+            return builder.like(path, (String) value);
+        });
+        expressionsMap.put(Expression.LIKE_AND, (builder, path, value) -> {
+            if (isIterableValue(value)) {
+                List<Predicate> predicateList = new ArrayList<>();
+                handleIterableValue(value).forEach(e -> {
+                    predicateList.add(builder.like(path, (String) e));
+                });
+                return builder.and(predicateList.toArray(new Predicate[]{}));
             }
             return builder.like(path, (String) value);
         });
