@@ -110,14 +110,18 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
                 );
     }
 
+    @SuppressWarnings("unchecked")
     private Object getValue(QueryProperty queryProperty, Object value) {
         if (Expression.NOT_LIKE.equals(queryProperty.expression()) || Expression.LIKE.equals(queryProperty.expression()) || Expression.LIKE_AND.equals(queryProperty.expression())) {
             if (value instanceof String) {
-                return JpaMatches.by(queryProperty.match()).toMatchString((String) value);
+                if (Expression.LIKE_AND.equals(queryProperty.expression())) {
+                    throw new IllegalStateException("Please use List<String> type for expression of LIKE_AND");
+                } else {
+                    return JpaMatches.by(queryProperty.match()).toMatchString((String) value);
+                }
             } else if (value.getClass().isArray() || value instanceof Collection) {
                 List<String> results = new ArrayList<>();
                 if (value.getClass().isArray()) {
-                    //noinspection ConstantConditions
                     Arrays.asList((Object[]) (value)).forEach(o -> {
                         if (o instanceof String) {
                             results.add(JpaMatches.by(queryProperty.match()).toMatchString((String) o));
@@ -125,8 +129,7 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
                             throw new IllegalStateException("Please use List<String> type for expression of LIKE, LIKE_AND or NOT_LIKE!");
                         }
                     });
-                } else if (value instanceof Collection) {
-                    //noinspection unchecked
+                } else {
                     ((Collection<Object>) value).forEach(o -> {
                         if (o instanceof String) {
                             results.add(JpaMatches.by(queryProperty.match()).toMatchString((String) o));
@@ -137,7 +140,7 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
                 }
                 return results;
             } else {
-                throw new IllegalStateException("Please use String type for expression of LIKE or NOT_LIKE!");
+                throw new IllegalStateException("Please use String or List<String> type for expression of LIKE or NOT_LIKE, and List<String> type for expression of LIKE_AND!");
             }
         }
         return value;
