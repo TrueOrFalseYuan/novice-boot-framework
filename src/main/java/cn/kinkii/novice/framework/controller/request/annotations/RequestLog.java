@@ -5,10 +5,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
-public @interface RequestProperty {
+public @interface RequestLog {
 
-    String targetProperty() default "";
+    String name() default "";
+
+    String method() default "";
+
+    String desc() default "";
 
 }
