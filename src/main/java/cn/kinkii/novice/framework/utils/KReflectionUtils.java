@@ -29,18 +29,25 @@ public class KReflectionUtils extends ReflectionUtils {
 
         List<Method> results = new ArrayList<>();
         doWithMethods(clazz, results::add, m -> (name.equals(m.getName()) &&
-                (pTypes == null || Arrays.equals(pTypes, m.getParameterTypes())) &&
+                (pTypes == null || compareTypeLists(pTypes, m.getParameterTypes())) &&
                 (returnType == null || returnType == m.getReturnType())));
 
         if (results.size() == 0) {
             return null;
-        } else if (results.size() == 1) {
-            return results.get(0);
         } else {
-            throw new IllegalStateException(
-                    String.format("Class<%s> has <%d> methods named <%s>, please specify the parameter types or the return type!",
-                            clazz.getCanonicalName(), results.size(), name
-                    ));
+            return results.get(0);
+        }
+    }
+
+    private static boolean compareTypeLists(Class<?>[] t1, Class<?>[] t2) {
+        if (Arrays.equals(t1, t2)) {
+            return true;
+        } else {
+            if (t1.length == t2.length) {
+                return IntStream.range(0, t1.length).allMatch(i -> t2[i].isAssignableFrom(t1[i]));
+            } else {
+                return false;
+            }
         }
     }
 
