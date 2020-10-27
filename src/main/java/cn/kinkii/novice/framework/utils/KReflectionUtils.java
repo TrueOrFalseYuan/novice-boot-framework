@@ -3,7 +3,6 @@ package cn.kinkii.novice.framework.utils;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +12,7 @@ import java.util.stream.IntStream;
 public class KReflectionUtils extends ReflectionUtils {
 
     public static Method findActualMethod(Class<?> clazz, String name) {
-        return findActualMethod(clazz, name, new Class[]{}, null);
+        return findActualMethod(clazz, name, null, null);
     }
 
     public static Method findActualMethod(Class<?> clazz, String name, Class<?>[] pTypes) {
@@ -21,7 +20,7 @@ public class KReflectionUtils extends ReflectionUtils {
     }
 
     public static Method findActualMethod(Class<?> clazz, String name, Class<?> returnType) {
-        return findActualMethod(clazz, name, new Class[]{}, returnType);
+        return findActualMethod(clazz, name, null, returnType);
     }
 
     public static Method findActualMethod(Class<?> clazz, String name, Class<?>[] pTypes, Class<?> returnType) {
@@ -30,30 +29,19 @@ public class KReflectionUtils extends ReflectionUtils {
 
         List<Method> results = new ArrayList<>();
         doWithMethods(clazz, results::add, m -> (name.equals(m.getName()) &&
-                (pTypes == null || compareTypeLists(pTypes, m.getParameterTypes())) &&
-                (returnType == null || returnType == m.getReturnType() )));
+                (pTypes == null || Arrays.equals(pTypes, m.getParameterTypes())) &&
+                (returnType == null || returnType == m.getReturnType())));
 
         if (results.size() == 0) {
             return null;
-        } else {
-            // 可改进
+        } else if (results.size() == 1) {
             return results.get(0);
+        } else {
+            throw new IllegalStateException(
+                    String.format("Class<%s> has <%d> methods named <%s>, please specify the parameter types or the return type!",
+                            clazz.getCanonicalName(), results.size(), name
+                    ));
         }
-
     }
 
-    private static boolean compareTypeLists(Class<?>[] t1, Class<?>[] t2) {
-        if (t1.length != t2.length) return false;
-        if (Arrays.equals(t1, t2)) return true;
-        return IntStream.range(0, t1.length).allMatch(i -> t2[i].isAssignableFrom(t1[i]));
-    }
-
-    public static List<Field> getFields(Class clazz) {
-        List<Field> fields = new ArrayList<>();
-        while (clazz != Object.class) {
-            fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
-            clazz = clazz.getSuperclass();
-        }
-        return fields;
-    }
 }

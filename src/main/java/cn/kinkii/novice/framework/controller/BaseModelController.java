@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings({"unchecked", "unused", "SameParameterValue", "WeakerAccess"})
+@SuppressWarnings({"unchecked", "unused", "SameParameterValue", "WeakerAccess", "rawtypes"})
 public abstract class BaseModelController<E extends Identifiable<ID>, ID extends Serializable> extends BaseController {
 
     protected final Class clazz = KGenericsUtils.getSuperclassGenericType(getClass(), 0);
