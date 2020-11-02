@@ -15,7 +15,6 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.io.Serializable;
 import java.security.Principal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,7 +31,7 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
         return true;
     }
 
-    protected List<E> handleAfterQuery(List<E> queryResult, Principal principal) {
+    protected List<E> handleAfterQuery(Q query, List<E> queryResult, Principal principal) {
         return queryResult;
     }
 
@@ -45,7 +44,7 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
         return handleQuery(query, principal);
     }
 
-    protected Page<E> handleAfterPageQuery(Page<E> queryResult, Principal principal) {
+    protected Page<E> handleAfterPageQuery(Q query, Pageable pageable, Page<E> queryResult, Principal principal) {
         return queryResult;
     }
 
@@ -58,6 +57,7 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
         }
         if (handleQuery(query, principal)) {
             return handleAfterQuery(
+                    query,
                     (List<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class}, List.class, new JpaQuerySpecification<>(query)),
                     principal
             );
@@ -78,6 +78,8 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
                 query.setIsSortByAnnotation(false);
             }
             return handleAfterPageQuery(
+                    query,
+                    pageable,
                     (Page<E>) invoke(getRepository(), "findAll", new Class[]{Specification.class, Pageable.class}, Page.class, new Object[]{new JpaQuerySpecification<>(query), pageable}),
                     principal
             );
