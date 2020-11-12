@@ -148,7 +148,7 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
 
     private JoinType getJoinType(Join join) {
         if (Join.DEFAULT.equals(join)) {
-            return null;
+            return JoinType.LEFT;
         } else if (Join.JPA_INNER.equals(join)) {
             return JoinType.INNER;
         } else if (Join.JPA_LEFT.equals(join)) {
