@@ -2,6 +2,7 @@ package cn.kinkii.novice.framework.controller;
 
 import cn.kinkii.novice.framework.controller.exception.InternalServiceException;
 import cn.kinkii.novice.framework.controller.exception.InvalidParamException;
+import cn.kinkii.novice.framework.controller.request.annotations.RequestLog;
 import cn.kinkii.novice.framework.entity.Identifiable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -84,6 +85,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
 
     protected abstract E toPatchModel(R modelRequest, Principal principal);
 
+    @RequestLog
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
     @Transactional
@@ -102,6 +104,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         }
     }
 
+    @RequestLog
     @RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
     @ResponseBody
     @Transactional
@@ -109,6 +112,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         return update(id, modelRequest, principal, request);
     }
 
+    @RequestLog
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     @ResponseBody
     @Transactional
@@ -131,6 +135,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         }
     }
 
+    @RequestLog
     @RequestMapping(value = "/{id}/patch", method = RequestMethod.POST)
     @ResponseBody
     @Transactional
@@ -138,6 +143,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         return patch(id, modelRequest, principal, request);
     }
 
+    @RequestLog
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
     @ResponseBody
     @Transactional
@@ -160,6 +166,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         }
     }
 
+    @RequestLog
     @RequestMapping(value = "/{id}/delete", method = RequestMethod.POST)
     @ResponseBody
     @Transactional
@@ -167,6 +174,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         return delete(id, principal, request);
     }
 
+    @RequestLog
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseBody
     @Transactional
@@ -187,6 +195,7 @@ public abstract class BaseModelRequestCRUDController<E extends Identifiable<ID>,
         }
     }
 
+    @RequestLog
     @RequestMapping(value = "/delete", method = {RequestMethod.DELETE, RequestMethod.POST})
     @ResponseBody
     @Transactional

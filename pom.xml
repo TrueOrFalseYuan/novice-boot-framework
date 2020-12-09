@@ -6,7 +6,7 @@
     <artifactId>novice-boot-framework</artifactId>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.8-SNAPSHOT</version>
     <name>novice-boot-framework</name>
 
     <parent>

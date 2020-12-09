@@ -19,13 +19,13 @@ public abstract class BaseModelCRUDController<E extends Identifiable<ID>, ID ext
     }
 
     @Override
-    protected final E handleUpdate(ID id, E model, Principal principal, HttpServletRequest request) {
+    protected E handleUpdate(ID id, E model, Principal principal, HttpServletRequest request) {
         model.setId(id);
         return handleUpdate(model, principal, request);
     }
 
     @Override
-    protected final E handlePatch(ID id, E model, Principal principal, HttpServletRequest request) {
+    protected E handlePatch(ID id, E model, Principal principal, HttpServletRequest request) {
         model.setId(id);
         return handlePatch(model, principal, request);
     }
