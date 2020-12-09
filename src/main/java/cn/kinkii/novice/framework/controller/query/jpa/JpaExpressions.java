@@ -25,6 +25,16 @@ public class JpaExpressions extends Expressions {
             }
             return builder.equal(path, value);
         });
+        expressionsMap.put(Expression.ALL_EQ, (builder, path, value) -> {
+            if (isIterableValue(value)) {
+                List<Predicate> predicateList = new ArrayList<>();
+                handleIterableValue(value).forEach(e -> {
+                    predicateList.add(builder.equal(path, e));
+                });
+                return builder.and(predicateList.toArray(new Predicate[]{}));
+            }
+            return builder.equal(path, value);
+        });
         expressionsMap.put(Expression.NEQ, (builder, path, value) -> {
             if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
@@ -32,6 +42,16 @@ public class JpaExpressions extends Expressions {
                     predicateList.add(builder.notEqual(path, e));
                 });
                 return builder.or(predicateList.toArray(new Predicate[]{}));
+            }
+            return builder.notEqual(path, value);
+        });
+        expressionsMap.put(Expression.ALL_NEQ, (builder, path, value) -> {
+            if (isIterableValue(value)) {
+                List<Predicate> predicateList = new ArrayList<>();
+                handleIterableValue(value).forEach(e -> {
+                    predicateList.add(builder.notEqual(path, e));
+                });
+                return builder.and(predicateList.toArray(new Predicate[]{}));
             }
             return builder.notEqual(path, value);
         });
