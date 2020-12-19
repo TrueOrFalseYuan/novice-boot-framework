@@ -91,11 +91,15 @@ public abstract class BaseJpaQueryController<E extends Identifiable<ID>, ID exte
     @RequestMapping(value = "/count", method = {RequestMethod.POST, RequestMethod.GET})
     @Transactional
     @ResponseBody
-    public Long count(@Valid Q query, Principal principal) {
+    public BaseResult count(@Valid Q query, Principal principal) {
         if (!canQuery()) {
             return null;
         }
-        return (long) invoke(getRepository(), "count", new Class[]{Specification.class}, new JpaQuerySpecification<>(query));
+        if (handleQuery(query, principal)) {
+            return BaseResult.success(getMessage(GlobalMessage.SUCCESS.getMessageKey())).addDetail(invoke(getRepository(), "count", new Class[]{Specification.class}, new JpaQuerySpecification<>(query)));
+        } else {
+            return BaseResult.success(getMessage(GlobalMessage.SUCCESS.getMessageKey())).addDetail(0);
+        }
     }
 
 }
