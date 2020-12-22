@@ -19,7 +19,7 @@ import javax.transaction.Transactional;
 import java.io.Serializable;
 import java.util.Date;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused"})
 @Slf4j
 public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializable> extends QuerydslJpaRepository<E, ID> implements ModelRepository<E, ID> {
 
@@ -69,7 +69,10 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
     @Override
     @Transactional
     public void deleteInBatchById(Iterable<ID> ids) {
-        if (!LogicalDeleteable.class.isAssignableFrom(getDomainClass())) {
+        Assert.notNull(ids, "The given Iterable of entity ids not be null!");
+        if (LogicalDeleteable.class.isAssignableFrom(getDomainClass())) {
+            entityManager.createQuery(createBatchLogicalDeleteCriteria(ids)).executeUpdate();
+        } else {
             CriteriaBuilder cb = entityManager.getCriteriaBuilder();
             CriteriaDelete<E> criteriaDelete = cb.createCriteriaDelete(domainClass);
             Root<E> root = criteriaDelete.from(domainClass);
@@ -79,9 +82,6 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
             criteriaDelete.where(inClause);
 
             entityManager.createQuery(criteriaDelete).executeUpdate();
-        } else {
-            Assert.notNull(ids, "The given Iterable of entity ids not be null!");
-            ids.forEach(this::logicalDeleteById);
         }
     }
 
@@ -126,10 +126,6 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
     }
 
     private CriteriaUpdate<E> createBatchLogicalDeleteCriteria() {
-        return createLogicalDeleteCriteria(null);
-    }
-
-    private CriteriaUpdate<E> createLogicalDeleteCriteria(ID id) {
         try {
             LogicalDeleteable target = (LogicalDeleteable) domainClass.newInstance();
             CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -139,16 +135,35 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
             if (StringUtils.hasText(target.getDelTimeFlag())) {
                 criteriaUpdate.set(target.getDelTimeFlag(), new Date());
             }
-            if (id != null) {
-                criteriaUpdate.where(cb.equal(root.get(entityInformation.getIdAttribute()), id));
-            }
-
             return criteriaUpdate;
         } catch (InstantiationException | IllegalAccessException e) {
             log.error("Failed to build criteria for logical delete!", e);
-            e.printStackTrace();
+            throw new IllegalStateException(e.getMessage());
         }
-        return null;
+    }
+
+    private CriteriaUpdate<E> createBatchLogicalDeleteCriteria(Iterable<ID> ids) {
+        if (ids == null) {
+            throw new IllegalArgumentException("The id can't be null!");
+        }
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaUpdate<E> criteriaUpdate = createBatchLogicalDeleteCriteria();
+        Root<E> root = criteriaUpdate.from(domainClass);
+        CriteriaBuilder.In<Object> inClause = cb.in(root.get(entityInformation.getIdAttribute()));
+        ids.forEach(inClause::value);
+        criteriaUpdate.where(inClause);
+        return criteriaUpdate;
+    }
+
+    private CriteriaUpdate<E> createLogicalDeleteCriteria(ID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("The id can't be null!");
+        }
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaUpdate<E> criteriaUpdate = createBatchLogicalDeleteCriteria();
+        Root<E> root = criteriaUpdate.from(domainClass);
+        criteriaUpdate.where(cb.equal(root.get(entityInformation.getIdAttribute()), id));
+        return criteriaUpdate;
     }
 
 }
