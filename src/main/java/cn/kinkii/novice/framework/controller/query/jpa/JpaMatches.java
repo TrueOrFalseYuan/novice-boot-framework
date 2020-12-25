@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class JpaMatches {
 
-    private static Map<Match, MatchMode> matchModeMap = new HashMap<>();
+    private static final Map<Match, MatchMode> matchModeMap = new HashMap<>();
 
     static {
         Arrays.stream(Match.values()).forEach(match -> matchModeMap.put(match, MatchMode.valueOf(match.name())));

@@ -76,7 +76,6 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
             CriteriaBuilder cb = entityManager.getCriteriaBuilder();
             CriteriaDelete<E> criteriaDelete = cb.createCriteriaDelete(domainClass);
             Root<E> root = criteriaDelete.from(domainClass);
-
             CriteriaBuilder.In<Object> inClause = cb.in(root.get(entityInformation.getIdAttribute()));
             ids.forEach(inClause::value);
             criteriaDelete.where(inClause);
@@ -146,24 +145,44 @@ public class BaseModelRepository<E extends Identifiable<ID>, ID extends Serializ
         if (ids == null) {
             throw new IllegalArgumentException("The id can't be null!");
         }
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaUpdate<E> criteriaUpdate = createBatchLogicalDeleteCriteria();
-        Root<E> root = criteriaUpdate.from(domainClass);
-        CriteriaBuilder.In<Object> inClause = cb.in(root.get(entityInformation.getIdAttribute()));
-        ids.forEach(inClause::value);
-        criteriaUpdate.where(inClause);
-        return criteriaUpdate;
+        try {
+            LogicalDeleteable target = (LogicalDeleteable) domainClass.newInstance();
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            CriteriaUpdate<E> criteriaUpdate = cb.createCriteriaUpdate(domainClass);
+            Root<E> root = criteriaUpdate.from(domainClass);
+            criteriaUpdate.set(target.getDelFlag(), true);
+            if (StringUtils.hasText(target.getDelTimeFlag())) {
+                criteriaUpdate.set(target.getDelTimeFlag(), new Date());
+            }
+            CriteriaBuilder.In<Object> inClause = cb.in(root.get(entityInformation.getIdAttribute()));
+            ids.forEach(inClause::value);
+            criteriaUpdate.where(inClause);
+            return criteriaUpdate;
+        } catch (InstantiationException | IllegalAccessException e) {
+            log.error("Failed to build criteria for logical delete!", e);
+            throw new IllegalStateException(e.getMessage());
+        }
     }
 
     private CriteriaUpdate<E> createLogicalDeleteCriteria(ID id) {
         if (id == null) {
             throw new IllegalArgumentException("The id can't be null!");
         }
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaUpdate<E> criteriaUpdate = createBatchLogicalDeleteCriteria();
-        Root<E> root = criteriaUpdate.from(domainClass);
-        criteriaUpdate.where(cb.equal(root.get(entityInformation.getIdAttribute()), id));
-        return criteriaUpdate;
+        try {
+            LogicalDeleteable target = (LogicalDeleteable) domainClass.newInstance();
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            CriteriaUpdate<E> criteriaUpdate = cb.createCriteriaUpdate(domainClass);
+            Root<E> root = criteriaUpdate.from(domainClass);
+            criteriaUpdate.set(target.getDelFlag(), true);
+            if (StringUtils.hasText(target.getDelTimeFlag())) {
+                criteriaUpdate.set(target.getDelTimeFlag(), new Date());
+            }
+            criteriaUpdate.where(cb.equal(root.get(entityInformation.getIdAttribute()), id));
+            return criteriaUpdate;
+        } catch (InstantiationException | IllegalAccessException e) {
+            log.error("Failed to build criteria for logical delete!", e);
+            throw new IllegalStateException(e.getMessage());
+        }
     }
 
 }
