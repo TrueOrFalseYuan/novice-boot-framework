@@ -11,6 +11,7 @@ public enum GlobalMessage {
 
     ERROR_REQUEST("global.error.request"),
     ERROR_DATA("global.error.data"),
+    ERROR_DATA_BOUND("global.error.data.bound"),
     ERROR_SERVICE("global.error.service"),
     ERROR_PARAMETER("global.error.parameter"),
     ERROR_PERMISSION("global.error.permission"),

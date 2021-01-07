@@ -4,12 +4,14 @@ import cn.kinkii.novice.framework.controller.exception.*;
 import cn.kinkii.novice.framework.exception.BaseException;
 import cn.kinkii.novice.framework.service.exception.ServiceException;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
@@ -22,7 +24,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.validation.ConstraintViolationException;
 import java.util.Locale;
 
 @Component
@@ -37,6 +38,7 @@ public class BaseControllerHandler {
     private MessageSource messageSource;
 
     @ExceptionHandler
+    @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(UserDefinedException ex) {
         log.debug("user defined error:" + ex.getMessage(), ex);
@@ -48,6 +50,7 @@ public class BaseControllerHandler {
     }
 
     @ExceptionHandler
+    @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(InternalServiceException ex) {
         log.error("internal error:" + ex.getMessage(), ex);
@@ -55,6 +58,7 @@ public class BaseControllerHandler {
     }
 
     @ExceptionHandler
+    @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(InvalidParamException ex) {
         log.debug("invalid params error:" + ex.getMessage(), ex);
@@ -62,6 +66,7 @@ public class BaseControllerHandler {
     }
 
     @ExceptionHandler
+    @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(InvalidDataException ex) {
         log.debug("invalid data error:" + ex.getMessage(), ex);
@@ -69,6 +74,7 @@ public class BaseControllerHandler {
     }
 
     @ExceptionHandler
+    @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(IllegalPermissionException ex) {
         log.debug("illegal permission error:" + ex.getMessage(), ex);
@@ -84,6 +90,7 @@ public class BaseControllerHandler {
     }
 
     @ExceptionHandler
+    @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(DataAccessException ex) {
         log.error("data access error:" + ex.getMessage(), ex);
@@ -91,17 +98,19 @@ public class BaseControllerHandler {
     }
 
     @ExceptionHandler
+    @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public BaseResult handle(ConstraintViolationException ex) {
+    public BaseResult handle(DataIntegrityViolationException ex) {
         log.error("constraint violation error:" + ex.getMessage(), ex);
-        BaseResult baseResult = buildResult(GlobalExceptionCode.INVALID_DATA_EXCEPTION_CODE, ex, GlobalMessage.ERROR_DATA);
-        ex.getConstraintViolations().forEach(constraintViolation -> {
-            baseResult.addValue(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage());
-        });
-        return baseResult;
+        if (ex.getCause() instanceof ConstraintViolationException) {
+            return buildResult(GlobalExceptionCode.INVALID_DATA_EXCEPTION_CODE, ex, GlobalMessage.ERROR_DATA_BOUND);
+        } else {
+            return buildResult(GlobalExceptionCode.INVALID_DATA_EXCEPTION_CODE, ex, GlobalMessage.ERROR_DATA);
+        }
     }
 
     @ExceptionHandler
+    @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(BindException ex) {
         log.debug("invalid params error:" + ex.getMessage(), ex);
@@ -113,6 +122,7 @@ public class BaseControllerHandler {
     }
 
     @ExceptionHandler
+    @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(MethodArgumentNotValidException ex) {
         log.debug("method args not valid error:" + ex.getMessage(), ex);
@@ -124,6 +134,7 @@ public class BaseControllerHandler {
     }
 
     @ExceptionHandler
+    @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(MissingServletRequestParameterException ex) {
         log.debug("missing request parameter mismatch:" + ex.getMessage(), ex);
@@ -131,6 +142,7 @@ public class BaseControllerHandler {
     }
 
     @ExceptionHandler
+    @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(HttpMessageNotReadableException ex) {
         log.debug("http message not readable:" + ex.getMessage(), ex);
@@ -138,6 +150,7 @@ public class BaseControllerHandler {
     }
 
     @ExceptionHandler
+    @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(TypeMismatchException ex) {
         log.debug("type mismatch:" + ex.getMessage(), ex);
