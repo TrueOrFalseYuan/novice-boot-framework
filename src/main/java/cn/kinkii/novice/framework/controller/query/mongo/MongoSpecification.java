@@ -11,11 +11,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+@SuppressWarnings("rawtypes")
 public class MongoSpecification<T extends Identifiable> extends BaseQuerySpecification<MongoQuery> {
 
     public MongoSpecification(MongoQuery<T> query) {
@@ -29,7 +27,7 @@ public class MongoSpecification<T extends Identifiable> extends BaseQuerySpecifi
             List<Order> queryOrders = getClassOrders();
             if (!queryOrders.isEmpty()) {
                 queryOrders.forEach(order -> {
-                    mongoDBQuery.with(new Sort(order.getDirection().toDirection(), order.getColumn()));
+                    mongoDBQuery.with(Sort.by(order.getDirection().toDirection(), order.getColumn()));
                 });
             }
         }
