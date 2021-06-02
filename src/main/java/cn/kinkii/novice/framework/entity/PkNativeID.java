@@ -21,8 +21,8 @@ public abstract class PkNativeID implements Identifiable<Long> {
 
   @Id
   @Column(name = "ID")
-  @GeneratedValue(generator = "db-native")
-  @GenericGenerator(name = "db-native", strategy = "native")
+  @GeneratedValue(generator = "dbNative")
+  @GenericGenerator(name = "dbNative", strategy = "native")
   @Getter
   @Setter
   protected Long id;
