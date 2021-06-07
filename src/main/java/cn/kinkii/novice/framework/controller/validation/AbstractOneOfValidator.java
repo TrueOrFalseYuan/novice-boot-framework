@@ -1,8 +1,5 @@
 package cn.kinkii.novice.framework.controller.validation;
 
-import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
-import org.springframework.util.StringUtils;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 

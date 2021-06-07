@@ -1,4 +1,4 @@
 package cn.kinkii.novice.framework.controller.interceptor;
 
-public class DuplicateRequestIntercetpor {
+public class DuplicateRequestInterceptor {
 }

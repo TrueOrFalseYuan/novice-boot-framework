@@ -41,7 +41,7 @@ public class BaseControllerHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(UserDefinedException ex) {
-        log.debug("user defined error:" + ex.getMessage(), ex);
+        log.error("user defined error:" + ex.getMessage(), ex);
         if (StringUtils.hasText(ex.getMessage())) {
             return BaseResult.failure(ex.getCode(), ex.getMessage());
         } else {
@@ -61,7 +61,7 @@ public class BaseControllerHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(InvalidParamException ex) {
-        log.debug("invalid params error:" + ex.getMessage(), ex);
+        log.error("invalid params error:" + ex.getMessage(), ex);
         return buildResult(ex, GlobalMessage.ERROR_PARAMETER);
     }
 
@@ -69,7 +69,7 @@ public class BaseControllerHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(InvalidDataException ex) {
-        log.debug("invalid data error:" + ex.getMessage(), ex);
+        log.error("invalid data error:" + ex.getMessage(), ex);
         return buildResult(ex, GlobalMessage.ERROR_DATA);
     }
 
@@ -77,7 +77,7 @@ public class BaseControllerHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(IllegalPermissionException ex) {
-        log.debug("illegal permission error:" + ex.getMessage(), ex);
+        log.error("illegal permission error:" + ex.getMessage(), ex);
         return buildResult(ex, GlobalMessage.ERROR_PERMISSION);
     }
 
@@ -85,7 +85,7 @@ public class BaseControllerHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(ServiceException ex) {
-        log.debug("checked service error:" + ex.getMessage(), ex);
+        log.error("checked service error:" + ex.getMessage(), ex);
         return buildResult(ex.getCode(), ex, EXCEPTION_RESPONSE_PREFIX + ex.getCode(), GlobalMessage.ERROR_SERVICE.getMessageKey());
     }
 
@@ -113,7 +113,7 @@ public class BaseControllerHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(BindException ex) {
-        log.debug("invalid params error:" + ex.getMessage(), ex);
+        log.error("invalid params error:" + ex.getMessage(), ex);
         BaseResult baseResult = buildResult(GlobalExceptionCode.INVALID_PARAM_EXCEPTION_CODE, ex, GlobalMessage.ERROR_PARAMETER);
         ex.getBindingResult().getFieldErrors().forEach(fieldError -> {
             baseResult.addValue(fieldError.getField(), fieldError.getDefaultMessage());
@@ -125,7 +125,7 @@ public class BaseControllerHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(MethodArgumentNotValidException ex) {
-        log.debug("method args not valid error:" + ex.getMessage(), ex);
+        log.error("method args not valid error:" + ex.getMessage(), ex);
         BaseResult baseResult = buildResult(GlobalExceptionCode.INVALID_PARAM_EXCEPTION_CODE, ex, GlobalMessage.ERROR_PARAMETER);
         ex.getBindingResult().getFieldErrors().forEach(fieldError -> {
             baseResult.addValue(fieldError.getField(), fieldError.getDefaultMessage());
@@ -137,7 +137,7 @@ public class BaseControllerHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(MissingServletRequestParameterException ex) {
-        log.debug("missing request parameter mismatch:" + ex.getMessage(), ex);
+        log.error("missing request parameter mismatch:" + ex.getMessage(), ex);
         return buildResult(GlobalExceptionCode.INVALID_PARAM_EXCEPTION_CODE, ex, GlobalMessage.ERROR_PARAMETER);
     }
 
@@ -145,7 +145,7 @@ public class BaseControllerHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(HttpMessageNotReadableException ex) {
-        log.debug("http message not readable:" + ex.getMessage(), ex);
+        log.error("http message not readable:" + ex.getMessage(), ex);
         return buildResult(GlobalExceptionCode.BAD_REQUEST_EXCEPTION_CODE, ex, GlobalMessage.ERROR_REQUEST);
     }
 
@@ -153,7 +153,7 @@ public class BaseControllerHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public BaseResult handle(TypeMismatchException ex) {
-        log.debug("type mismatch:" + ex.getMessage(), ex);
+        log.error("type mismatch:" + ex.getMessage(), ex);
         return buildResult(GlobalExceptionCode.BAD_REQUEST_EXCEPTION_CODE, ex, GlobalMessage.ERROR_REQUEST);
     }
 
