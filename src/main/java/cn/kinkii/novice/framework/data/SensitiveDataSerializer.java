@@ -37,13 +37,18 @@ public class SensitiveDataSerializer extends JsonSerializer<String> implements C
     public void serialize(String s, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         String maskedValue = s;
         if (this.matchPatternList != null && this.matchPatternList.size() > 0) {
+            boolean isMatched = false;
             for (Pattern p : this.matchPatternList) {
                 Matcher m = p.matcher(s);
                 while (m.find()) {
+                    isMatched = true;
                     for (int i = 1; i <= m.groupCount(); i++) {
                         maskedValue = maskedValue.replace(s.subSequence(m.start(i), m.end(i)), String.join("", Collections.nCopies(m.end(i) - m.start(i), "*")));
                     }
                 }
+            }
+            if (!isMatched) {
+                maskedValue = maskedValue.replaceAll(REPLACE_ALL_REGEX, this.maskChar);
             }
         } else {
             maskedValue = maskedValue.replaceAll(REPLACE_ALL_REGEX, this.maskChar);
