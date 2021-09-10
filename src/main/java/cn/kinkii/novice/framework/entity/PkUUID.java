@@ -19,7 +19,7 @@ public abstract class PkUUID implements Identifiable<String> {
 
   @Id
   @Column(name = "ID", length = 64)
-  @GenericGenerator(name = "system-uuid", strategy = "uuid")
+  @GenericGenerator(name = "system-uuid", strategy = "org.hibernate.id.UUIDGenerator")
   @GeneratedValue(generator = "system-uuid")
   @Getter
   @Setter
