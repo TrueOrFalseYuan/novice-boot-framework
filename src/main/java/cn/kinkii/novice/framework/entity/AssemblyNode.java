@@ -10,5 +10,10 @@ public interface AssemblyNode<T extends Serializable> {
 
     T getParentId();
 
+    default Boolean getIsTransparent() {
+        return false;
+    }
+
     void setChildren(List<? extends AssemblyNode<T>> children);
+
 }
