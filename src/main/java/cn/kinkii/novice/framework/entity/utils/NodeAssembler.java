@@ -10,11 +10,15 @@ import java.util.Set;
 public class NodeAssembler<E extends AssemblyNode<T>, T extends Serializable> {
 
     public Set<E> assemble(Set<E> nodes) {
+        return assemble(nodes, true);
+    }
+
+    public Set<E> assemble(Set<E> nodes, boolean enableTransparent) {
         Set<E> result = new LinkedHashSet<>();
         for (E node : nodes) {
             if (node.getParentId() == null) {
-                Set<E> children = assemble(nodes, node.getSelfId());
-                if (node.getIsTransparent()) {
+                Set<E> children = assemble(nodes, node.getSelfId(), enableTransparent);
+                if (enableTransparent && node.getIsTransparent()) {
                     result.addAll(children);
                 } else {
                     if (children.size() > 0) {
@@ -27,12 +31,12 @@ public class NodeAssembler<E extends AssemblyNode<T>, T extends Serializable> {
         return result;
     }
 
-    private Set<E> assemble(Set<E> nodes, T parentId) {
+    private Set<E> assemble(Set<E> nodes, T parentId, boolean enableTransparent) {
         Set<E> result = new LinkedHashSet<>();
         for (E node : nodes) {
             if (parentId != null && parentId.equals(node.getParentId())) {
-                Set<E> children = assemble(nodes, node.getSelfId());
-                if (node.getIsTransparent()) {
+                Set<E> children = assemble(nodes, node.getSelfId(), enableTransparent);
+                if (enableTransparent && node.getIsTransparent()) {
                     result.addAll(children);
                 } else {
                     if (children.size() > 0) {
