@@ -27,7 +27,6 @@ public @interface QueryProperty {
      */
     Expression expression() default Expression.EQ;
 
-
     Match match() default Match.ANYWHERE;
 
     /**
