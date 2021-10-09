@@ -134,7 +134,7 @@ public class JpaExpressions extends Expressions {
                 });
                 return builder.or(predicateList.toArray(new Predicate[]{}));
             }
-            return builder.like(path, (String) value);
+            return builder.like(builder.upper(path), ((String) value).toUpperCase());
         });
         expressionsMap.put(Expression.LIKE_AND, (builder, path, value) -> {
             if (isIterableValue(value)) {
