@@ -27,6 +27,8 @@ public @interface QueryProperty {
      */
     Expression expression() default Expression.EQ;
 
+    boolean ignoreCase() default false;
+
     Match match() default Match.ANYWHERE;
 
     /**

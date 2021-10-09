@@ -2,6 +2,7 @@ package cn.kinkii.novice.framework.controller.query.jpa;
 
 import cn.kinkii.novice.framework.controller.query.Expression;
 import cn.kinkii.novice.framework.controller.query.Expressions;
+import cn.kinkii.novice.framework.controller.query.annotations.QueryProperty;
 import cn.kinkii.novice.framework.db.mysql.KMySQLFunction;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -15,48 +16,88 @@ public class JpaExpressions extends Expressions {
     private static final Map<Expression, JpaExpression> expressionsMap = new HashMap<>();
 
     static {
-        expressionsMap.put(Expression.EQ, (builder, path, value) -> {
+        expressionsMap.put(Expression.EQ, (builder, path, value, property) -> {
             if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
-                handleIterableValue(value).forEach(e -> {
-                    predicateList.add(builder.equal(path, e));
-                });
+                List<Object> iterable = handleIterableValue(value);
+                if (property.ignoreCase() && iterable.size() > 0 && iterable.get(0) instanceof String) {
+                    iterable.forEach(e -> {
+                        predicateList.add(builder.equal(builder.upper(path), ((String) e).toUpperCase()));
+                    });
+                } else {
+                    handleIterableValue(value).forEach(e -> {
+                        predicateList.add(builder.equal(path, e));
+                    });
+                }
                 return builder.or(predicateList.toArray(new Predicate[]{}));
+            }
+            if (value instanceof String) {
+                return builder.equal(builder.upper(path), ((String) value).toUpperCase());
             }
             return builder.equal(path, value);
         });
-        expressionsMap.put(Expression.ALL_EQ, (builder, path, value) -> {
+        expressionsMap.put(Expression.ALL_EQ, (builder, path, value, property) -> {
             if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
-                handleIterableValue(value).forEach(e -> {
-                    predicateList.add(builder.equal(path, e));
-                });
+                List<Object> iterable = handleIterableValue(value);
+                if (property.ignoreCase() && iterable.size() > 0 && iterable.get(0) instanceof String) {
+                    iterable.forEach(e -> {
+                        predicateList.add(builder.equal(builder.upper(path), ((String) e).toUpperCase()));
+                    });
+                } else {
+                    handleIterableValue(value).forEach(e -> {
+                        predicateList.add(builder.equal(path, e));
+                    });
+                }
                 return builder.and(predicateList.toArray(new Predicate[]{}));
             }
+            if (value instanceof String) {
+                return builder.equal(builder.upper(path), ((String) value).toUpperCase());
+            }
             return builder.equal(path, value);
         });
-        expressionsMap.put(Expression.NEQ, (builder, path, value) -> {
+        expressionsMap.put(Expression.NEQ, (builder, path, value, property) -> {
             if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
-                handleIterableValue(value).forEach(e -> {
-                    predicateList.add(builder.notEqual(path, e));
-                });
+                List<Object> iterable = handleIterableValue(value);
+                if (property.ignoreCase() && iterable.size() > 0 && iterable.get(0) instanceof String) {
+                    iterable.forEach(e -> {
+                        predicateList.add(builder.notEqual(builder.upper(path), ((String) e).toUpperCase()));
+                    });
+                } else {
+                    handleIterableValue(value).forEach(e -> {
+                        predicateList.add(builder.notEqual(path, e));
+                    });
+                }
                 return builder.or(predicateList.toArray(new Predicate[]{}));
+            }
+            if (value instanceof String) {
+                return builder.notEqual(builder.upper(path), ((String) value).toUpperCase());
             }
             return builder.notEqual(path, value);
         });
-        expressionsMap.put(Expression.ALL_NEQ, (builder, path, value) -> {
+        expressionsMap.put(Expression.ALL_NEQ, (builder, path, value, property) -> {
             if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
-                handleIterableValue(value).forEach(e -> {
-                    predicateList.add(builder.notEqual(path, e));
-                });
+                List<Object> iterable = handleIterableValue(value);
+                if (property.ignoreCase() && iterable.size() > 0 && iterable.get(0) instanceof String) {
+                    iterable.forEach(e -> {
+                        predicateList.add(builder.notEqual(builder.upper(path), ((String) e).toUpperCase()));
+                    });
+                } else {
+                    handleIterableValue(value).forEach(e -> {
+                        predicateList.add(builder.notEqual(path, e));
+                    });
+                }
                 return builder.and(predicateList.toArray(new Predicate[]{}));
+            }
+            if (value instanceof String) {
+                return builder.notEqual(builder.upper(path), ((String) value).toUpperCase());
             }
             return builder.notEqual(path, value);
         });
 
-        expressionsMap.put(Expression.GT, (builder, path, value) -> {
+        expressionsMap.put(Expression.GT, (builder, path, value, property) -> {
             if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
                 handleIterableValue(value).forEach(e -> {
@@ -66,7 +107,7 @@ public class JpaExpressions extends Expressions {
             }
             return builder.greaterThan(path, (Comparable) value);
         });
-        expressionsMap.put(Expression.LT, (builder, path, value) -> {
+        expressionsMap.put(Expression.LT, (builder, path, value, property) -> {
             if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
                 handleIterableValue(value).forEach(e -> {
@@ -76,7 +117,7 @@ public class JpaExpressions extends Expressions {
             }
             return builder.lessThan(path, (Comparable) value);
         });
-        expressionsMap.put(Expression.GTE, (builder, path, value) -> {
+        expressionsMap.put(Expression.GTE, (builder, path, value, property) -> {
             if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
                 handleIterableValue(value).forEach(e -> {
@@ -86,7 +127,7 @@ public class JpaExpressions extends Expressions {
             }
             return builder.greaterThanOrEqualTo(path, (Comparable) value);
         });
-        expressionsMap.put(Expression.LTE, (builder, path, value) -> {
+        expressionsMap.put(Expression.LTE, (builder, path, value, property) -> {
             if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
                 handleIterableValue(value).forEach(e -> {
@@ -96,7 +137,7 @@ public class JpaExpressions extends Expressions {
             }
             return builder.lessThanOrEqualTo(path, (Comparable) value);
         });
-        expressionsMap.put(Expression.BETWEEN, (builder, path, value) -> {
+        expressionsMap.put(Expression.BETWEEN, (builder, path, value, property) -> {
             if (!isIterableValue(value)) {
                 throw new IllegalArgumentException("The value should be iterable!");
             } else {
@@ -116,48 +157,68 @@ public class JpaExpressions extends Expressions {
                 }
             }
         });
-        expressionsMap.put(Expression.LIKE, (builder, path, value) -> {
+        expressionsMap.put(Expression.LIKE, (builder, path, value, property) -> {
             if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
-                handleIterableValue(value).forEach(e -> {
-                    predicateList.add(builder.like(path, (String) e));
-                });
+                List<Object> iterable = handleIterableValue(value);
+                if (property.ignoreCase() && iterable.size() > 0 && iterable.get(0) instanceof String) {
+                    iterable.forEach(e -> {
+                        predicateList.add(builder.like(builder.upper(path), ((String) e).toUpperCase()));
+                    });
+                } else {
+                    handleIterableValue(value).forEach(e -> {
+                        predicateList.add(builder.like(path, ((String) e)));
+                    });
+                }
                 return builder.or(predicateList.toArray(new Predicate[]{}));
             }
-            return builder.like(path, (String) value);
-        });
-        expressionsMap.put(Expression.ILIKE, (builder, path, value) -> {
-            if (isIterableValue(value)) {
-                List<Predicate> predicateList = new ArrayList<>();
-                handleIterableValue(value).forEach(e -> {
-                    predicateList.add(builder.like(builder.upper(path), ((String) e).toUpperCase()));
-                });
-                return builder.or(predicateList.toArray(new Predicate[]{}));
+            if (value instanceof String) {
+                return builder.like(builder.upper(path), ((String) value).toUpperCase());
             }
-            return builder.like(builder.upper(path), ((String) value).toUpperCase());
+            return builder.like(path, ((String) value));
         });
-        expressionsMap.put(Expression.LIKE_AND, (builder, path, value) -> {
+        expressionsMap.put(Expression.LIKE_AND, (builder, path, value, property) -> {
             if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
-                handleIterableValue(value).forEach(e -> {
-                    predicateList.add(builder.like(path, (String) e));
-                });
+                List<Object> iterable = handleIterableValue(value);
+                if (property.ignoreCase() && iterable.size() > 0 && iterable.get(0) instanceof String) {
+                    iterable.forEach(e -> {
+                        predicateList.add(builder.like(builder.upper(path), ((String) e).toUpperCase()));
+                    });
+                } else {
+                    handleIterableValue(value).forEach(e -> {
+                        predicateList.add(builder.like(path, ((String) e)));
+                    });
+                }
                 return builder.and(predicateList.toArray(new Predicate[]{}));
             }
-            return builder.like(path, (String) value);
+            if (value instanceof String) {
+                return builder.like(builder.upper(path), ((String) value).toUpperCase());
+            }
+            return builder.like(path, ((String) value));
         });
-        expressionsMap.put(Expression.NOT_LIKE, (builder, path, value) -> {
+        expressionsMap.put(Expression.NOT_LIKE, (builder, path, value, property) -> {
             if (isIterableValue(value)) {
                 List<Predicate> predicateList = new ArrayList<>();
-                handleIterableValue(value).forEach(e -> {
-                    predicateList.add(builder.notLike(path, (String) e));
-                });
+                List<Object> iterable = handleIterableValue(value);
+                if (property.ignoreCase() && iterable.size() > 0 && iterable.get(0) instanceof String) {
+                    iterable.forEach(e -> {
+                        predicateList.add(builder.notLike(builder.upper(path), ((String) e).toUpperCase()));
+                    });
+                } else {
+                    handleIterableValue(value).forEach(e -> {
+                        predicateList.add(builder.notLike(path, ((String) e)));
+                    });
+                }
                 return builder.or(predicateList.toArray(new Predicate[]{}));
             }
-            return builder.notLike(path, (String) value);
+            if (value instanceof String) {
+                return builder.notLike(builder.upper(path), ((String) value).toUpperCase());
+            }
+            return builder.notLike(path, ((String) value));
         });
         // Match expression is Only supported while using KMySQLDialect
-        expressionsMap.put(Expression.MATCH, (builder, path, value) -> {
+        expressionsMap.put(Expression.MATCH, (builder, path, value, property) -> {
             if (isIterableValue(value)) {
                 StringJoiner againstValueJoiner = new StringJoiner(" ");
                 handleIterableValue(value).forEach(e -> {
@@ -173,17 +234,31 @@ public class JpaExpressions extends Expressions {
             }
         });
 
-        expressionsMap.put(Expression.IN, (builder, path, value) -> {
-            CriteriaBuilder.In<Object> in = builder.in(path);
-            handleIterableValue(value).forEach(in::value);
-            return in;
+        expressionsMap.put(Expression.IN, (builder, path, value, property) -> {
+            List<Object> iterable = handleIterableValue(value);
+            if (property.ignoreCase() && iterable.size() > 0 && iterable.get(0) instanceof String) {
+                CriteriaBuilder.In<Object> in = builder.in(builder.upper(path));
+                iterable.forEach(str -> in.value(((String)str).toUpperCase()));
+                return in;
+            } else {
+                CriteriaBuilder.In<Object> in = builder.in(path);
+                iterable.forEach(in::value);
+                return in;
+            }
         });
-        expressionsMap.put(Expression.NOT_IN, (builder, path, value) -> {
-            CriteriaBuilder.In<Object> in = builder.in(path);
-            handleIterableValue(value).forEach(in::value);
-            return builder.not(in);
+        expressionsMap.put(Expression.NOT_IN, (builder, path, value, property) -> {
+            List<Object> iterable = handleIterableValue(value);
+            if (property.ignoreCase() && iterable.size() > 0 && iterable.get(0) instanceof String) {
+                CriteriaBuilder.In<Object> in = builder.in(builder.upper(path));
+                iterable.forEach(str -> in.value(((String)str).toUpperCase()));
+                return builder.not(in);
+            } else {
+                CriteriaBuilder.In<Object> in = builder.in(path);
+                iterable.forEach(in::value);
+                return builder.not(in);
+            }
         });
-        expressionsMap.put(Expression.IS_NULL, (CriteriaBuilder builder, Path path, Object value) -> {
+        expressionsMap.put(Expression.IS_NULL, (builder, path, value, property) -> {
             if ((Boolean) value) {
                 return builder.isNull(path);
             } else {

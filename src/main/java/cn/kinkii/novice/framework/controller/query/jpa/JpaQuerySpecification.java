@@ -106,7 +106,8 @@ public class JpaQuerySpecification<T extends Identifiable> extends BaseQuerySpec
                 .build(
                         criteriaBuilder,
                         getPath(queryProperty.column(), entityRoot, getJoinType(queryProperty.join())),
-                        getValue(queryProperty, value)
+                        getValue(queryProperty, value),
+                        queryProperty
                 );
     }
 
